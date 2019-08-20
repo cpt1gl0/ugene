@@ -68,8 +68,8 @@ void DashboardPageController::sl_pageIsAboutToBeInitialized() {
 }
 
 void DashboardPageController::sl_pageInitialized() {
-    static const QMetaMethod valueChangedSignal = QMetaMethod::fromSignal(&WorkflowMonitor::si_newNotification);
-    if (NULL != monitor && isSignalConnected(valueChangedSignal)) {
+    static const QMetaMethod newNotificationSignal = QMetaMethod::fromSignal(&WorkflowMonitor::si_newNotification);
+    if (NULL != monitor && isSignalConnected(newNotificationSignal)) {
         connect(monitor, SIGNAL(si_newNotification(WorkflowNotification, int)), SLOT(sl_newNotification(WorkflowNotification, int)));
     }
 
