@@ -665,6 +665,7 @@ void LaunchExternalToolTask::run() {
         externalProcess->setStandardOutputFile(output);
     }
     QScopedPointer<ExternalToolRunTaskHelper> helper(new ExternalToolRunTaskHelper(externalProcess, new ExternalToolLogParser(), stateInfo));
+    CHECK(listeners.size() > 0, );
     helper->addOutputListener(listeners[0]);
     QStringList execStringArgs = ExternalToolSupportUtils::splitCmdLineArguments(execString);
     QString execStringProg = execStringArgs.takeAt(0);
@@ -689,6 +690,10 @@ QMap<QString, DataConfig> LaunchExternalToolTask::takeOutputUrls() {
     QMap<QString, DataConfig> result = outputUrls;
     outputUrls.clear();
     return result;
+}
+
+void LaunchExternalToolTask::addListeners(const QList<ExternalToolListener*>& listenersToAdd) {
+    listeners.append(listenersToAdd);
 }
 
 /************************************************************************/

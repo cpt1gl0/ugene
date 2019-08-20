@@ -42,7 +42,7 @@ DashboardPageController::DashboardPageController(Dashboard *_dashboard)
     if (NULL != monitor) {
         connect(monitor, SIGNAL(si_progressChanged(int)), SLOT(sl_progressChanged(int)));
         connect(monitor, SIGNAL(si_taskStateChanged(Monitor::TaskState)), SLOT(sl_taskStateChanged(Monitor::TaskState)));
-        connect(monitor, SIGNAL(si_newNotification(WorkflowNotification, int)), SLOT(sl_newNotification(WorkflowNotification, int)));
+        connect(monitor, SIGNAL(si_newNotification(WorkflowNotification, int)), SLOT(sl_newNotification(WorkflowNotification, int)), Qt::UniqueConnection);
         connect(monitor, SIGNAL(si_workerInfoChanged(const QString &, const Monitor::WorkerInfo &)),
                 SLOT(sl_workerInfoChanged(const QString &, const Monitor::WorkerInfo &)));
         connect(monitor, SIGNAL(si_updateProducers()), SLOT(sl_workerStatsUpdate()));
@@ -68,11 +68,6 @@ void DashboardPageController::sl_pageIsAboutToBeInitialized() {
 }
 
 void DashboardPageController::sl_pageInitialized() {
-    static const QMetaMethod newNotificationSignal = QMetaMethod::fromSignal(&WorkflowMonitor::si_newNotification);
-    if (NULL != monitor && isSignalConnected(newNotificationSignal)) {
-        connect(monitor, SIGNAL(si_newNotification(WorkflowNotification, int)), SLOT(sl_newNotification(WorkflowNotification, int)));
-    }
-
     initData();
     SimpleWebViewBasedWidgetController::sl_pageInitialized();
 }
