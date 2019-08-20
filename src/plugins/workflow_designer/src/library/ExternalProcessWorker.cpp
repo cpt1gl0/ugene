@@ -348,8 +348,14 @@ Task * ExternalProcessWorker::tick() {
     applyEscapedSymbols(execString);
 
     LaunchExternalToolTask *task = new LaunchExternalToolTask(execString, outputUrls);
-    task->addListeners(createLogListeners());
+    QList<ExternalToolListener*> listeners(createLogListeners());
+    task->addListeners(listeners);
     connect(task, SIGNAL(si_stateChanged()), SLOT(sl_onTaskFinishied()));
+    const QString commandWithArguments = GUrlUtils::getQuotedString(execString);// +ExternalToolSupportUtils::prepareArgumentsForCmdLine(execStringArgs);
+    if (listeners[0] != nullptr) {
+        listeners[0]->setToolName(cfg->name);
+        listeners[0]->addNewLogMessage(commandWithArguments, ExternalToolListener::PROGRAM_WITH_ARGUMENTS);
+    }
     return task;
 }
 
@@ -674,6 +680,7 @@ void LaunchExternalToolTask::run() {
     externalProcess->setProcessEnvironment(env);
     taskLog.details(tr("Running external process: %1").arg(execString));
     bool startOk = WorkflowUtils::startExternalProcess(externalProcess, execStringProg, execStringArgs);
+
     if(!startOk) {
         stateInfo.setError(tr("Can't launch %1").arg(execString));
         return;
