@@ -682,12 +682,7 @@ void LaunchExternalToolTask::run() {
         if(isCanceled()) {
             CmdlineTaskRunner::killProcessTree(externalProcess);
         }
-    }
-    /*
-    listeners[0]->addNewLogMessage(externalProcess->readAllStandardOutput(), ExternalToolListener::LogType::OUTPUT_LOG);
-    listeners[0]->addNewLogMessage(externalProcess->readAllStandardError(), ExternalToolListener::LogType::ERROR_LOG);
-    */
-    
+    }    
 }
 
 QMap<QString, DataConfig> LaunchExternalToolTask::takeOutputUrls() {
