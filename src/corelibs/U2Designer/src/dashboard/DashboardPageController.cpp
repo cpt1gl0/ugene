@@ -22,6 +22,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMetaMethod>
 
 #include <U2Gui/WebViewController.h>
 
@@ -67,7 +68,8 @@ void DashboardPageController::sl_pageIsAboutToBeInitialized() {
 }
 
 void DashboardPageController::sl_pageInitialized() {
-    if (NULL != monitor) {
+    static const QMetaMethod valueChangedSignal = QMetaMethod::fromSignal(&WorkflowMonitor::si_newNotification);
+    if (NULL != monitor && isSignalConnected(valueChangedSignal)) {
         connect(monitor, SIGNAL(si_newNotification(WorkflowNotification, int)), SLOT(sl_newNotification(WorkflowNotification, int)));
     }
 

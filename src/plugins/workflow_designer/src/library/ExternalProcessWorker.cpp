@@ -348,6 +348,7 @@ Task * ExternalProcessWorker::tick() {
     applyEscapedSymbols(execString);
 
     LaunchExternalToolTask *task = new LaunchExternalToolTask(execString, outputUrls);
+    task->addListeners(createLogListeners());
     connect(task, SIGNAL(si_stateChanged()), SLOT(sl_onTaskFinishied()));
     return task;
 }
@@ -663,16 +664,15 @@ void LaunchExternalToolTask::run() {
         execString = execString.split(">").first();
         externalProcess->setStandardOutputFile(output);
     }
-
+    QScopedPointer<ExternalToolRunTaskHelper> helper(new ExternalToolRunTaskHelper(externalProcess, new ExternalToolLogParser(), stateInfo));
+    helper->addOutputListener(listeners[0]);
     QStringList execStringArgs = ExternalToolSupportUtils::splitCmdLineArguments(execString);
     QString execStringProg = execStringArgs.takeAt(0);
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     externalProcess->setProcessEnvironment(env);
     taskLog.details(tr("Running external process: %1").arg(execString));
-
     bool startOk = WorkflowUtils::startExternalProcess(externalProcess, execStringProg, execStringArgs);
-
     if(!startOk) {
         stateInfo.setError(tr("Can't launch %1").arg(execString));
         return;
@@ -683,6 +683,11 @@ void LaunchExternalToolTask::run() {
             CmdlineTaskRunner::killProcessTree(externalProcess);
         }
     }
+    /*
+    listeners[0]->addNewLogMessage(externalProcess->readAllStandardOutput(), ExternalToolListener::LogType::OUTPUT_LOG);
+    listeners[0]->addNewLogMessage(externalProcess->readAllStandardError(), ExternalToolListener::LogType::ERROR_LOG);
+    */
+    
 }
 
 QMap<QString, DataConfig> LaunchExternalToolTask::takeOutputUrls() {
