@@ -53,7 +53,8 @@
 #include <U2Lang/WorkflowEnv.h>
 #include <U2Lang/WorkflowMonitor.h>
 
-#include "CustomExternalToolLogProcessor.h"
+#include "CustomExternalToolLogParser.h"
+#include "CustomExternalToolRunTaskHelper.h"
 #include "ExternalProcessWorker.h"
 #include "util/CustomWorkerUtils.h"
 
