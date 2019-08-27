@@ -47,6 +47,8 @@ HEADERS += src/ActorCfgFilterProxyModel.h \
            src/library/ConvertFilesFormatWorker.h \
            src/library/ConvertSnpeffVariationsToAnnotationsWorker.h \
            src/library/CoreLib.h \
+           src/library/CustomExternalToolLogParser.h \
+           src/library/CustomExternalToolRunTaskHelper.h \
            src/library/DocActors.h \
            src/library/DocWorkers.h \
            src/library/ExternalProcessWorker.h \
@@ -168,6 +170,7 @@ SOURCES += src/ActorCfgFilterProxyModel.cpp \
            src/library/ConvertFilesFormatWorker.cpp \
            src/library/ConvertSnpeffVariationsToAnnotationsWorker.cpp \
            src/library/CoreLib.cpp \
+           src/library/CustomExternalToolRunTaskHelper.h \
            src/library/DocActors.cpp \
            src/library/DocWorkers.cpp \
            src/library/ExternalProcessWorker.cpp \

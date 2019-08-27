@@ -53,6 +53,7 @@
 #include <U2Lang/WorkflowEnv.h>
 #include <U2Lang/WorkflowMonitor.h>
 
+#include "CustomExternalToolLogProcessor.h"
 #include "ExternalProcessWorker.h"
 #include "util/CustomWorkerUtils.h"
 
@@ -349,6 +350,8 @@ Task * ExternalProcessWorker::tick() {
 
     LaunchExternalToolTask *task = new LaunchExternalToolTask(execString, outputUrls);
     QList<ExternalToolListener*> listeners(createLogListeners());
+//     QList<ExternalToolListener*> listeners;
+//     listeners.append(new CustomCmdlineElementListener(monitor(), actor->getId(), actor->getLabel(), 1));
     task->addListeners(listeners);
     connect(task, SIGNAL(si_stateChanged()), SLOT(sl_onTaskFinishied()));
     if (listeners[0] != nullptr) {
@@ -672,7 +675,8 @@ void LaunchExternalToolTask::run() {
         execString = execString.split(">").first();
         externalProcess->setStandardOutputFile(output);
     }
-    QScopedPointer<ExternalToolRunTaskHelper> helper(new ExternalToolRunTaskHelper(externalProcess, new ExternalToolLogParser(), stateInfo));
+    QScopedPointer<CustomExternalToolLogParser> logParser(new CustomExternalToolLogParser());
+    QScopedPointer<ExternalToolRunTaskHelper> helper(new CustomExternalToolRunTaskHelper(externalProcess, logParser.data(), stateInfo));
     CHECK(listeners.size() > 0, );
     helper->addOutputListener(listeners[0]);
     QStringList execStringArgs = ExternalToolSupportUtils::splitCmdLineArguments(execString);
