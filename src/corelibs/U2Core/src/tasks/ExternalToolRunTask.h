@@ -115,9 +115,12 @@ public:
 
 public slots:
     void sl_onReadyToReadLog();
-    virtual void sl_onReadyToReadErrLog();
+    void sl_onReadyToReadErrLog();
 
 protected:
+    virtual void processErrorToLog();
+
+private:
     QMutex logMutex;
     U2OpStatus& os;
     ExternalToolLogParser* logParser;

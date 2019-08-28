@@ -170,8 +170,6 @@ SOURCES += src/ActorCfgFilterProxyModel.cpp \
            src/library/ConvertFilesFormatWorker.cpp \
            src/library/ConvertSnpeffVariationsToAnnotationsWorker.cpp \
            src/library/CoreLib.cpp \
-           src/library/CustomExternalToolLogProcessor.cpp \
-           src/library/CustomExternalToolRunTaskHelper.cpp \
            src/library/DocActors.cpp \
            src/library/DocWorkers.cpp \
            src/library/ExternalProcessWorker.cpp \
