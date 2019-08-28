@@ -28,10 +28,11 @@ namespace U2 {
 
 class CustomExternalToolRunTaskHelper : public ExternalToolRunTaskHelper {
 public:
-    CustomExternalToolRunTaskHelper(QProcess* process, ExternalToolLogParser* logParser, U2OpStatus& os);
+    CustomExternalToolRunTaskHelper::CustomExternalToolRunTaskHelper(QProcess* process, ExternalToolLogParser* logParser, U2OpStatus& os) 
+        : ExternalToolRunTaskHelper(process, logParser, os) {}
 
-public slots:
-    virtual void sl_onReadyToReadErrLog() override;
+private:
+    void processErrorToLog() override {};
 };
 
 }

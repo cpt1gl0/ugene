@@ -351,8 +351,6 @@ Task * ExternalProcessWorker::tick() {
 
     LaunchExternalToolTask *task = new LaunchExternalToolTask(execString, outputUrls);
     QList<ExternalToolListener*> listeners(createLogListeners());
-//     QList<ExternalToolListener*> listeners;
-//     listeners.append(new CustomCmdlineElementListener(monitor(), actor->getId(), actor->getLabel(), 1));
     task->addListeners(listeners);
     connect(task, SIGNAL(si_stateChanged()), SLOT(sl_onTaskFinishied()));
     if (listeners[0] != nullptr) {

@@ -28,9 +28,9 @@ namespace U2 {
 
 class CustomExternalToolLogParser : public ExternalToolLogParser {
 public:
-    CustomExternalToolLogParser() {};
+    CustomExternalToolLogParser() : ExternalToolLogParser() {};
 
-protected:
+private:
     void parseErrOutput(const QString& partOfLog) override {};
 };
 
