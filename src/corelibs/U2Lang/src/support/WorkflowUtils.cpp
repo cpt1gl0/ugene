@@ -180,7 +180,7 @@ bool validateExternalTools(Actor *a, NotificationsList &infoList) {
                                 WorkflowNotification::U2_ERROR);
         } else if (!fromAttr && !tool->isValid()) {
             if (tool->isCustom()) {
-                infoList << WorkflowNotification(WorkflowUtils::customExternalToolInvalidError(tool->getName(), a->getId()),
+                infoList << WorkflowNotification(WorkflowUtils::customExternalToolInvalidError(tool->getName(), a->getLabel()),
                     a->getId(),
                     WorkflowNotification::U2_ERROR);
                 good = false;
