@@ -25,6 +25,7 @@
 #include <U2Core/AppContext.h>
 #include <U2Core/AppSettings.h>
 #include <U2Core/CmdlineTaskRunner.h>
+#include <U2Core/CoreExternalToolsUtils.h>
 #include <U2Core/ExternalToolRegistry.h>
 #include <U2Core/GUrlUtils.h>
 #include <U2Core/Log.h>
@@ -34,6 +35,7 @@
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QStandardPaths>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -379,8 +381,23 @@ void ExternalToolSupportUtils::appendExistingFile(const QString &path, QStringLi
 bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments) {
     process->start(program, arguments);
     bool started = process->waitForStarted(START_WAIT_MSEC);
-
-#ifdef Q_OS_WIN32
+    const QString launcherId = CoreExternalToolsUtils::detectLauncherByExtension(program);
+    if (!started && !launcherId.isEmpty()) {
+        ExternalTool* tool = AppContext::getExternalToolRegistry()->getById(launcherId);
+        QString execFileName;
+        QStringList newArguments = arguments;
+        newArguments.prepend(program);
+        if (!QStandardPaths::findExecutable(tool->getExecutableFileName()).isEmpty()) {
+            execFileName = tool->getExecutableFileName();
+        } else if (!tool->getPath().isEmpty()) {
+            execFileName = tool->getPath();
+        } else {
+            return false;
+        }
+        process->start(execFileName, newArguments);
+        started = process->waitForStarted(START_WAIT_MSEC);
+    }
+#ifdef Q_OS_WIN
     if (!started) {
         QString execStr = WIN_LAUNCH_CMD_COMMAND + program;
         foreach(const QString arg, arguments) {

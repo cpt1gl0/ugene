@@ -19,6 +19,7 @@
  * MA 02110-1301, USA.
  */
 
+#include <QStandardPaths>
 #include <QString>
 
 #include <U2Core/AppContext.h>
@@ -123,9 +124,18 @@ void ExternalToolJustValidateTask::run() {
         QString launcherName = "";
         if (!launcherId.isEmpty()) {
             ExternalTool *tool = AppContext::getExternalToolRegistry()->getById(launcherId);
-            execFileName = tool->getExecutableFileName();
+            if (!QStandardPaths::findExecutable(tool->getExecutableFileName()).isEmpty()) {
+                execFileName = tool->getExecutableFileName();
+            } else if (!tool->getPath().isEmpty()) {
+                execFileName = tool->getPath();
+            } else {
+                launcherName = tool->getName();
+                stateInfo.setError(tr("Associated launcher %1 for your tool not found.")
+                    .arg(launcherName));
+                isValid = false;
+                return;
+            }
             validationArgs = tool->getValidationArguments();
-            launcherName = tool->getName();
         }
         externalToolProcess->start(execFileName, validationArgs);
         bool started = externalToolProcess->waitForStarted(3000);
@@ -135,20 +145,13 @@ void ExternalToolJustValidateTask::run() {
             if (!errorMsg.isEmpty()) {
                 stateInfo.setError(errorMsg);
             } else {
-                if (launcherId.isEmpty()) {
-                    stateInfo.setError(tr("Tool does not start.<br>"
-                        "It is possible that the specified executable file "
-                        "<i>%1</i> for %2 tool is invalid. You can change "
-                        "the path to the executable file in the external "
-                        "tool settings in the global preferences.")
-                        .arg(toolPath)
-                        .arg(toolName));
-                }  else {
-                    stateInfo.setError(tr("Associated launcher for your tool not start.<br>"
-                        "It is possible that the specified executable file "
-                        "%2 is not in PATH.")
-                        .arg(launcherName));
-                }
+                stateInfo.setError(tr("Tool does not start.<br>"
+                    "It is possible that the specified executable file "
+                    "<i>%1</i> for %2 tool is invalid. You can change "
+                    "the path to the executable file in the external "
+                    "tool settings in the global preferences.")
+                    .arg(toolPath)
+                    .arg(toolName));
             }
             isValid = false;
             return;

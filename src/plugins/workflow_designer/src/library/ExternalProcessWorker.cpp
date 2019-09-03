@@ -26,7 +26,6 @@
 #include <U2Core/AppContext.h>
 #include <U2Core/AppSettings.h>
 #include <U2Core/CmdlineTaskRunner.h>
-#include <U2Core/CoreExternalToolsUtils.h>
 #include <U2Core/DNASequenceObject.h>
 #include <U2Core/DocumentModel.h>
 #include <U2Core/ExternalToolRegistry.h>
@@ -675,7 +674,6 @@ void LaunchExternalToolTask::run() {
         execString = execString.split(">").first();
         externalProcess->setStandardOutputFile(output);
     }
-    const QString launcherId = CoreExternalToolsUtils::detectLauncherByExtension(execString);
     QScopedPointer<CustomExternalToolLogParser> logParser(new CustomExternalToolLogParser());
     QScopedPointer<ExternalToolRunTaskHelper> helper(new CustomExternalToolRunTaskHelper(externalProcess, logParser.data(), stateInfo));
     CHECK(listeners.size() > 0, );
