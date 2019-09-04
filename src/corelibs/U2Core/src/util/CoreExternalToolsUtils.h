@@ -19,8 +19,8 @@
  * MA 02110-1301, USA.
  */
 
-#ifndef _U2_CORE_EXTERNAL_TOOL_UTILS_H_
-#define _U2_CORE_EXTERNAL_TOOL_UTILS_H_
+#ifndef _U2_CORE_EXTERNAL_TOOLS_UTILS_H_
+#define _U2_CORE_EXTERNAL_TOOLS_UTILS_H_
 
 #include <QString>
 #include <QMap>
@@ -31,12 +31,15 @@ namespace U2 {
 
 class U2CORE_EXPORT CoreExternalToolsUtils {
 public:
-    static const QString& detectLauncherByExtension(const QString& toolPath);
+    static const QString& detectLauncherIdByExtension(const QString& toolPath);
+    static const QString& detectLauncherExeByExtension(const QString& toolPath);
 
 private:
-    static const QMap<QString, QString> extToToolMap;
     static const QString ET_PERL_ID;
     static const QString ET_PYTHON_ID;
+
+    static const QMap<QString, QString> extToToolIdMap;
+    static const QMap<QString, QString> extToExeFileMap;
 };
 
 }

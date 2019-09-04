@@ -25,13 +25,20 @@
 
 namespace U2 {
 
-const QMap<QString, QString> CoreExternalToolsUtils::extToToolMap = { {"py", ET_PYTHON_ID}, {"pl", ET_PERL_ID} };
 const QString CoreExternalToolsUtils::ET_PERL_ID = "UGENE_PERL";
 const QString CoreExternalToolsUtils::ET_PYTHON_ID = "UGENE_PYTHON2";
 
-const QString& CoreExternalToolsUtils::detectLauncherByExtension(const QString& toolPath) {
+const QMap<QString, QString> CoreExternalToolsUtils::extToToolIdMap = { {"py", ET_PYTHON_ID}, {"pl", ET_PERL_ID} };
+const QMap<QString, QString> CoreExternalToolsUtils::extToExeFileMap = { {"py", "python"}, {"pl", "perl"} };
+
+const QString& CoreExternalToolsUtils::detectLauncherIdByExtension(const QString& toolPath) {
     QFileInfo path(toolPath);
-    return extToToolMap[path.suffix()];
+    return extToToolIdMap[path.suffix()];
+}
+
+const QString& CoreExternalToolsUtils::detectLauncherExeByExtension(const QString& toolPath) {
+    QFileInfo path(toolPath);
+    return extToExeFileMap[path.suffix()];
 }
 
 }

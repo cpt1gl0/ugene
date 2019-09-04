@@ -378,28 +378,33 @@ void ExternalToolSupportUtils::appendExistingFile(const QString &path, QStringLi
     }
 }
 
-bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments) {
+bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments, bool validate) {
     process->start(program, arguments);
     bool started = process->waitForStarted(START_WAIT_MSEC);
-    const QString launcherId = CoreExternalToolsUtils::detectLauncherByExtension(program);
+    const QString launcherId = CoreExternalToolsUtils::detectLauncherIdByExtension(program);
     if (!started && !launcherId.isEmpty()) {
         ExternalTool* tool = AppContext::getExternalToolRegistry()->getById(launcherId);
-        QString execFileName;
+        CHECK(tool != nullptr, false);
+        QString execFileName = CoreExternalToolsUtils::detectLauncherExeByExtension(program);
         QStringList newArguments = arguments;
-        newArguments.prepend(tool->getRunParameters().join(" "));
-        newArguments.prepend(program);
-        if (!QStandardPaths::findExecutable(tool->getExecutableFileName()).isEmpty()) {
-            execFileName = tool->getExecutableFileName();
-        } else if (!tool->getPath().isEmpty()) {
-            execFileName = tool->getPath();
-        } else {
-            return false;
+        if (!validate) {
+            if (!tool->getRunParameters().isEmpty()) {
+                newArguments.prepend(tool->getRunParameters().join(" "));
+            }
+            newArguments.prepend(program);
+        }
+        if (QStandardPaths::findExecutable(execFileName).isEmpty()) {
+            if (!tool->getPath().isEmpty()) {
+                execFileName = tool->getPath();
+            } else {
+                return false;
+            }
         }
         process->start(execFileName, newArguments);
         started = process->waitForStarted(START_WAIT_MSEC);
     }
 #ifdef Q_OS_WIN
-    if (!started) {
+    if (!started && !validate) {
         QString execStr = WIN_LAUNCH_CMD_COMMAND + program;
         foreach(const QString arg, arguments) {
             execStr += " " + arg;

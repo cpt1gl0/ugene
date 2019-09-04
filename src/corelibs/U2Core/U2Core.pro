@@ -217,8 +217,8 @@ HEADERS += src/cmdline/CMDLineCoreOptions.h \
            src/util/AnnotationCreationPattern.h \
            src/util/AssemblyImporter.h \
            src/util/ChromatogramUtils.h \
-           src/util/DatatypeSerializeUtils.h \
            src/util/CoreExternalToolsUtils.h \
+           src/util/DatatypeSerializeUtils.h \
            src/util/FileAndDirectoryUtils.h \
            src/util/FilesIterator.h \
            src/util/FileStorageUtils.h \

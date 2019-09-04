@@ -27,6 +27,7 @@
 #include <U2Core/CmdlineTaskRunner.h>
 #include <U2Core/CoreExternalToolsUtils.h>
 #include <U2Core/ExternalToolRegistry.h>
+#include <U2Core/ExternalToolRunTask.h>
 #include <U2Core/Log.h>
 #include <U2Core/ScriptingToolRegistry.h>
 #include <U2Core/U2SafePoints.h>
@@ -118,29 +119,8 @@ void ExternalToolJustValidateTask::run() {
 
         externalToolProcess = new QProcess();
         setEnvironment(tool);
-        const QString launcherId = CoreExternalToolsUtils::detectLauncherByExtension(validation.executableFile);
-        QString execFileName = validation.executableFile;
-        QStringList validationArgs = validation.arguments;
-        QString launcherName = "";
-        if (!launcherId.isEmpty()) {
-            ExternalTool *tool = AppContext::getExternalToolRegistry()->getById(launcherId);
-            if (!QStandardPaths::findExecutable(tool->getExecutableFileName()).isEmpty()) {
-                execFileName = tool->getExecutableFileName();
-            } else if (!tool->getPath().isEmpty()) {
-                execFileName = tool->getPath();
-            } else {
-                launcherName = tool->getName();
-                stateInfo.setError(tr("Associated launcher %1 for your tool not found.")
-                    .arg(launcherName));
-                isValid = false;
-                return;
-            }
-            validationArgs = tool->getValidationArguments();
-        }
-        externalToolProcess->start(execFileName, validationArgs);
-        bool started = externalToolProcess->waitForStarted(3000);
 
-        if (!started) {
+        if (!ExternalToolSupportUtils::startExternalProcess(externalToolProcess, validation.executableFile, validation.arguments, true)) {
             errorMsg = validation.possibleErrorsDescr.value(ExternalToolValidation::DEFAULT_DESCR_KEY, "");
             if (!errorMsg.isEmpty()) {
                 stateInfo.setError(errorMsg);
