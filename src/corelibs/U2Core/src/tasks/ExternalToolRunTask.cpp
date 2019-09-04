@@ -386,6 +386,7 @@ bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QSt
         ExternalTool* tool = AppContext::getExternalToolRegistry()->getById(launcherId);
         QString execFileName;
         QStringList newArguments = arguments;
+        newArguments.prepend(tool->getRunParameters().join(" "));
         newArguments.prepend(program);
         if (!QStandardPaths::findExecutable(tool->getExecutableFileName()).isEmpty()) {
             execFileName = tool->getExecutableFileName();

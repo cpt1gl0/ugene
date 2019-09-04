@@ -34,11 +34,9 @@ public:
     static const QString& detectLauncherByExtension(const QString& toolPath);
 
 private:
-    static void initMap();
-
-    static QMap<QString, QString> extToToolMap;
-    static const QString ET_PYTHON_ID;
+    static const QMap<QString, QString> extToToolMap;
     static const QString ET_PERL_ID;
+    static const QString ET_PYTHON_ID;
 };
 
 }
