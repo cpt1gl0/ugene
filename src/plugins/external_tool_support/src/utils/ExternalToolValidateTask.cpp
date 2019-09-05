@@ -120,7 +120,7 @@ void ExternalToolJustValidateTask::run() {
         externalToolProcess = new QProcess();
         setEnvironment(tool);
 
-        if (!ExternalToolSupportUtils::startExternalProcess(externalToolProcess, validation.executableFile, validation.arguments, true)) {
+        if (!ExternalToolSupportUtils::startExternalProcess(externalToolProcess, validation.executableFile, validation.arguments)) {
             errorMsg = validation.possibleErrorsDescr.value(ExternalToolValidation::DEFAULT_DESCR_KEY, "");
             if (!errorMsg.isEmpty()) {
                 stateInfo.setError(errorMsg);

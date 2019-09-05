@@ -30,6 +30,9 @@ const QMap<QString, QString> CoreExternalToolsUtils::extToExeFileMap = { {"py", 
 
 const QString& CoreExternalToolsUtils::detectLauncherExeByExtension(const QString& toolPath) {
     QFileInfo path(toolPath);
+    if (extToExeFileMap[path.suffix()].isEmpty()) {
+        return "";
+    }
     return QStandardPaths::findExecutable(extToExeFileMap[path.suffix()]);
 }
 
