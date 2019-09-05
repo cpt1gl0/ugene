@@ -380,8 +380,8 @@ void ExternalToolSupportUtils::appendExistingFile(const QString &path, QStringLi
 bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments, bool tryLaunchWithCmd) {
     process->start(program, arguments);
     bool started = process->waitForStarted(START_WAIT_MSEC);
-    QStringList extendedArgs(arguments);
     if (!started) {
+        QStringList extendedArgs(arguments);
         QString execFileName = CoreExternalToolsUtils::detectLauncherExeByExtension(program);
         if (execFileName.isEmpty()) {
             extendedArgs.prepend(execFileName);
@@ -392,7 +392,7 @@ bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QSt
 #ifdef Q_OS_WIN
     if (!started && tryLaunchWithCmd) {
         QString execStr = WIN_LAUNCH_CMD_COMMAND + program;
-        foreach(const QString arg, extendedArgs) {
+        foreach(const QString arg, arguments) {
             execStr += " " + arg;
         }
         process->start(execStr);

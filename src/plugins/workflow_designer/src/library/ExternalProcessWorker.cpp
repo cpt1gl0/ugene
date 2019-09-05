@@ -692,7 +692,7 @@ void LaunchExternalToolTask::run() {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     externalProcess->setProcessEnvironment(env);
     taskLog.details(tr("Running external process: %1").arg(execString));
-    bool startOk = ExternalToolSupportUtils::startExternalProcess(externalProcess, execStringProg, execStringArgs, false);
+    bool startOk = ExternalToolSupportUtils::startExternalProcess(externalProcess, execStringProg, execStringArgs);
     
     if(!startOk) {
         stateInfo.setError(tr("Can't launch %1").arg(execString));
