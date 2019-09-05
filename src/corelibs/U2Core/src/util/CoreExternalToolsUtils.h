@@ -31,14 +31,9 @@ namespace U2 {
 
 class U2CORE_EXPORT CoreExternalToolsUtils {
 public:
-    static const QString& detectLauncherIdByExtension(const QString& toolPath);
     static const QString& detectLauncherExeByExtension(const QString& toolPath);
 
 private:
-    static const QString ET_PERL_ID;
-    static const QString ET_PYTHON_ID;
-
-    static const QMap<QString, QString> extToToolIdMap;
     static const QMap<QString, QString> extToExeFileMap;
 };
 

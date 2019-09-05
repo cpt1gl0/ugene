@@ -35,7 +35,6 @@
 
 #include <QDir>
 #include <QRegularExpression>
-#include <QStandardPaths>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -378,35 +377,22 @@ void ExternalToolSupportUtils::appendExistingFile(const QString &path, QStringLi
     }
 }
 
-bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments, bool validate) {
+bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QString &program, const QStringList &arguments, bool tryLaunchWithCmd) {
     process->start(program, arguments);
     bool started = process->waitForStarted(START_WAIT_MSEC);
-    const QString launcherId = CoreExternalToolsUtils::detectLauncherIdByExtension(program);
-    if (!started && !launcherId.isEmpty()) {
-        ExternalTool* tool = AppContext::getExternalToolRegistry()->getById(launcherId);
-        CHECK(tool != nullptr, false);
+    QStringList extendedArgs(arguments);
+    if (!started) {
         QString execFileName = CoreExternalToolsUtils::detectLauncherExeByExtension(program);
-        QStringList newArguments = arguments;
-        if (!validate) {
-            if (!tool->getRunParameters().isEmpty()) {
-                newArguments.prepend(tool->getRunParameters().join(" "));
-            }
-            newArguments.prepend(program);
+        if (execFileName.isEmpty()) {
+            extendedArgs.prepend(execFileName);
+            process->start(execFileName, extendedArgs);
+            started = process->waitForStarted(START_WAIT_MSEC);
         }
-        if (QStandardPaths::findExecutable(execFileName).isEmpty()) {
-            if (!tool->getPath().isEmpty()) {
-                execFileName = tool->getPath();
-            } else {
-                return false;
-            }
-        }
-        process->start(execFileName, newArguments);
-        started = process->waitForStarted(START_WAIT_MSEC);
     }
 #ifdef Q_OS_WIN
-    if (!started && !validate) {
+    if (!started && tryLaunchWithCmd) {
         QString execStr = WIN_LAUNCH_CMD_COMMAND + program;
-        foreach(const QString arg, arguments) {
+        foreach(const QString arg, extendedArgs) {
             execStr += " " + arg;
         }
         process->start(execStr);
@@ -415,7 +401,6 @@ bool ExternalToolSupportUtils::startExternalProcess(QProcess *process, const QSt
         started = process->waitForStarted(START_WAIT_MSEC);
     }
 #endif
-
     return started;
 }
 

@@ -22,23 +22,15 @@
 #include "CoreExternalToolsUtils.h"
 
 #include <QFileInfo>
+#include <QStandardPaths>
 
 namespace U2 {
 
-const QString CoreExternalToolsUtils::ET_PERL_ID = "UGENE_PERL";
-const QString CoreExternalToolsUtils::ET_PYTHON_ID = "UGENE_PYTHON2";
-
-const QMap<QString, QString> CoreExternalToolsUtils::extToToolIdMap = { {"py", ET_PYTHON_ID}, {"pl", ET_PERL_ID} };
 const QMap<QString, QString> CoreExternalToolsUtils::extToExeFileMap = { {"py", "python"}, {"pl", "perl"} };
-
-const QString& CoreExternalToolsUtils::detectLauncherIdByExtension(const QString& toolPath) {
-    QFileInfo path(toolPath);
-    return extToToolIdMap[path.suffix()];
-}
 
 const QString& CoreExternalToolsUtils::detectLauncherExeByExtension(const QString& toolPath) {
     QFileInfo path(toolPath);
-    return extToExeFileMap[path.suffix()];
+    return QStandardPaths::findExecutable(extToExeFileMap[path.suffix()]);
 }
 
 }
