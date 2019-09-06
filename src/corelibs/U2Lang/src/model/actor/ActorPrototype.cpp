@@ -178,7 +178,6 @@ isScript(false), isStandard(true), isSchema(false), allowsEmptyPorts(false), inf
 }
 
 ActorPrototype::~ActorPrototype() {
-    CHECK(usageCounter == 0, );
     qDeleteAll(attrs);
     qDeleteAll(ports);
     delete ed;

@@ -719,6 +719,22 @@ QVariant WorkflowPaletteElements::changeState(const QVariant& savedState){
 }
 
 void WorkflowPaletteElements::removePrototype(ActorPrototype *proto) {
+    WorkflowView* wv = dynamic_cast<WorkflowView*>(schemaConfig);
+    CHECK(wv != nullptr, false);
+    int actorWithCurrentProtoCounter = 0;
+    for (auto actor : wv->getSchema()->getProcesses()) {
+        if (actor->getProto() == proto) {
+            actorWithCurrentProtoCounter++;
+        }
+    }
+    if (proto->getUsageCounter() != actorWithCurrentProtoCounter) {
+        QMessageBox::warning(this,
+            tr("Unable to Remove Element"),
+            tr("The element with external tool is used in other Workflow Designer window(s). "
+                "Please remove these instances to be able to remove the element configuration."),
+            QMessageBox::Yes);
+        return;
+    }
     emit si_prototypeIsAboutToBeRemoved(proto);
 
     if (!QFile::remove(proto->getFilePath())) {
