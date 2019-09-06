@@ -720,7 +720,7 @@ QVariant WorkflowPaletteElements::changeState(const QVariant& savedState){
 
 void WorkflowPaletteElements::removePrototype(ActorPrototype *proto) {
     WorkflowView* wv = dynamic_cast<WorkflowView*>(schemaConfig);
-    CHECK(wv != nullptr, false);
+    CHECK(wv != nullptr, );
     int actorWithCurrentProtoCounter = 0;
     for (auto actor : wv->getSchema()->getProcesses()) {
         if (actor->getProto() == proto) {
