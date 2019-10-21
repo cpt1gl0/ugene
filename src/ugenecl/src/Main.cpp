@@ -80,6 +80,7 @@
 #include <U2Lang/QueryDesignerRegistry.h>
 #include <U2Lang/WorkflowEnvImpl.h>
 #include <U2Lang/WorkflowRunTask.h>
+#include <U2Lang/WorkflowSettings.h>
 
 #include <U2Test/GTestFrameworkComponents.h>
 #include <U2Test/TestRunnerTask.h>
@@ -465,10 +466,38 @@ int main(int argc, char **argv)
         QObject::connect(psp, SIGNAL(si_allStartUpPluginsLoaded()), new TaskStarter(new DumpVersionTask()), SLOT(registerTask()));
     }
 
-    bool hasNewTmpDir = cmdLineRegistry->hasParameter(CMDLineCoreOptions::TMP_DIR);
-    if (hasNewTmpDir) {
-        QString newTmpDir = cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR);
-        AppContext::getAppSettings()->getUserAppsSettings()->setUserTemporaryDirPath(newTmpDir);
+    const QStringList params = { CMDLineCoreOptions::DOWNLOAD_DIR_PATH,
+                                 CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR_PATH,
+                                 CMDLineCoreOptions::TMP_DIR,
+                                 CMDLineCoreOptions::DEFAULT_DATA_DIR_PATH,
+                                 CMDLineCoreOptions::FILE_STORAGE_DIR,
+                                 CMDLineCoreOptions::EXTERNAL_TOOL_DIR,
+                                 CMDLineCoreOptions::INCLUDED_ELEMENTS_DIR,
+                                 };
+
+    foreach(const QString& par, params) {
+        CHECK_CONTINUE(cmdLineRegistry->hasParameter(par));
+
+        QString paramValue = cmdLineRegistry->getParameterValue(par);
+        if (par == CMDLineCoreOptions::DOWNLOAD_DIR_PATH) {
+            AppContext::getAppSettings()->getUserAppsSettings()->setDownloadDirPath(paramValue);
+        } else if (par == CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR_PATH) {
+            AppContext::getAppSettings()->getUserAppsSettings()->setCustomToolsConfigsDirPath(paramValue);
+        } else if (par == CMDLineCoreOptions::TMP_DIR) {
+            AppContext::getAppSettings()->getUserAppsSettings()->setUserTemporaryDirPath(paramValue);
+        } else if (par == CMDLineCoreOptions::DEFAULT_DATA_DIR_PATH) {
+            AppContext::getAppSettings()->getUserAppsSettings()->setDefaultDataDirPath(paramValue);
+        } else if (par == CMDLineCoreOptions::FILE_STORAGE_DIR) {
+            AppContext::getAppSettings()->getUserAppsSettings()->setFileStorageDir(paramValue);
+        } else if (par == CMDLineCoreOptions::USER_DIR) {
+            WorkflowSettings::setUserDirectory(paramValue);
+        } else if (par == CMDLineCoreOptions::EXTERNAL_TOOL_DIR) {
+            WorkflowSettings::setExternalToolDirectory(paramValue);
+        } else if (par == CMDLineCoreOptions::INCLUDED_ELEMENTS_DIR) {
+            WorkflowSettings::setIncludedElementsDirectory(paramValue);
+        } else if (par == CMDLineCoreOptions::WORKFLOW_OUTPUT_DIR) {
+            WorkflowSettings::setWorkflowOutputDirectory(paramValue);
+        }
     }
 
     if (!showHelp && !showLicense && !showVersion) {

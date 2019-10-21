@@ -50,7 +50,15 @@ public:
     static const QString LAUNCH_GUI_TEST_SUITE;
     static const QString LAUNCH_GUI_TEST_CRAZY_USER;
     static const QString USAGE;
+    static const QString DOWNLOAD_DIR_PATH;
+    static const QString CUSTOM_TOOLS_CONFIG_DIR_PATH;
     static const QString TMP_DIR;
+    static const QString DEFAULT_DATA_DIR_PATH;
+    static const QString FILE_STORAGE_DIR;
+    static const QString USER_DIR;
+    static const QString EXTERNAL_TOOL_DIR;
+    static const QString INCLUDED_ELEMENTS_DIR;
+    static const QString WORKFLOW_OUTPUT_DIR;
     static const QString SESSION_DB;
     static const QString USE_SAME_INI_FOR_TESTS;
 
