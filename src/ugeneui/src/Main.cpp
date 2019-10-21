@@ -455,6 +455,22 @@ int main(int argc, char **argv)
     CMDLineRegistry* cmdLineRegistry = new CMDLineRegistry(app.arguments());
     appContext->setCMDLineRegistry(cmdLineRegistry);
 
+    if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DOWNLOAD_DIR)) {
+        AppContext::getAppSettings()->getUserAppsSettings()->setDownloadDirPath(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DOWNLOAD_DIR));
+    }
+    if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR)) {
+        AppContext::getAppSettings()->getUserAppsSettings()->setCustomToolsConfigsDirPath(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR));
+    }
+    if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::TMP_DIR)) {
+        AppContext::getAppSettings()->getUserAppsSettings()->setUserTemporaryDirPath(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR));
+    }
+    if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DEFAULT_DATA_DIR)) {
+        AppContext::getAppSettings()->getUserAppsSettings()->setUserTemporaryDirPath(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DEFAULT_DATA_DIR));
+    }
+    if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::FILE_STORAGE_DIR)) {
+        AppContext::getAppSettings()->getUserAppsSettings()->setUserTemporaryDirPath(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::FILE_STORAGE_DIR));
+    }
+
     //1 create settings
     SettingsImpl* globalSettings = new SettingsImpl(QSettings::SystemScope);
     appContext->setGlobalSettings(globalSettings);
