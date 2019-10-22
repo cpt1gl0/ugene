@@ -73,7 +73,7 @@ extern "C" Q_DECL_EXPORT Plugin* U2_PLUGIN_INIT_FUNC() {
 const QString WorkflowDesignerPlugin::RUN_WORKFLOW               = "task";
 const QString WorkflowDesignerPlugin::REMOTE_MACHINE             = "task-remote-machine";
 const QString WorkflowDesignerPlugin::PRINT                      = "print";
-const QString WorkflowDesignerPlugin::CUSTOM_EL_WITH_SCRIPTS_DIR = "custom-elemets-with-scripts";
+const QString WorkflowDesignerPlugin::CUSTOM_EL_WITH_SCRIPTS_DIR = "custom-elements-with-scripts";
 const QString WorkflowDesignerPlugin::CUSTOM_EXTERNAL_TOOL_DIR   = "custom-external-tool-dir";
 const QString WorkflowDesignerPlugin::INCLUDED_ELEMENTS_DIR      = "included-elements-dir";
 const QString WorkflowDesignerPlugin::WORKFLOW_OUTPUT_DIR        = "workfow-output-dir";
