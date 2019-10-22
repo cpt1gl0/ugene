@@ -22,6 +22,7 @@
 #include "DetView.h"
 #include "DetViewSequenceEditor.h"
 
+#include "ADVSingleSequenceWidget.h"
 #include "ADVSequenceObjectContext.h"
 #include "view_rendering/DetViewSingleLineRenderer.h"
 #include "view_rendering/DetViewMultiLineRenderer.h"
@@ -34,6 +35,7 @@
 #include <U2Core/DNASequenceSelection.h>
 #include <U2Core/DNATranslation.h>
 #include <U2Core/DNATranslationImpl.h>
+#include <U2Core/Settings.h>
 #include <U2Core/SignalBlocker.h>
 #include <U2Core/TextUtils.h>
 #include <U2Core/U1AnnotationUtils.h>
@@ -59,6 +61,11 @@ namespace U2 {
 /************************************************************************/
 /* DetView */
 /************************************************************************/
+
+const QString DetView::SEQUENCE_WRAPPED = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/sequenceWrapped";
+const QString DetView::COMPLEMENTARY_STRAND_SHOWN = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/complimentaryHidden";
+const QString DetView::TRANSLATION_STATE = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/translationState";
+
 DetView::DetView(QWidget* p, SequenceObjectContext* ctx)
     : GSequenceLineViewAnnotated(p, ctx)
 {
@@ -148,6 +155,7 @@ DetView::DetView(QWidget* p, SequenceObjectContext* ctx)
     connect(ctx->getSequenceObject(), SIGNAL(si_sequenceChanged()), SLOT(sl_sequenceChanged()));
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    setDefaultState();
 }
 DetView::~DetView() {
     removeEventFilter(editor);
@@ -213,7 +221,13 @@ int DetView::getSymbolsPerLine() const {
     return getDetViewRenderArea()->getSymbolsPerLine();
 }
 
+void DetView::setWrapSequence(bool v) {
+    wrapSequenceAction->setChecked(v);
+    sl_wrapSequenceToggle(v);
+}
+
 void DetView::setShowComplement(bool t) {
+    AppContext::getSettings()->setValue(COMPLEMENTARY_STRAND_SHOWN, QVariant(t));
     showComplementAction->disconnect(this);
     showComplementAction->setChecked(t);
     ctx->showComplementActions(t);
@@ -393,12 +407,15 @@ void DetView::sl_showAllFrames() {
 }
 
 void DetView::updateSelectedTranslations(const SequenceObjectContext::TranslationState& state) {
+    AppContext::getSettings()->setValue(TRANSLATION_STATE, QVariant(state));
     ctx->setTranslationState(state);
     setSelectedTranslations();
 }
 
 void DetView::sl_wrapSequenceToggle(bool v) {
     GCOUNTER( cvar, tvar, "SequenceView::DetView::WrapSequence" );
+
+    AppContext::getSettings()->setValue(SEQUENCE_WRAPPED, QVariant(v));
     // turn off/on multiline mode
     scrollBar->setHidden(v);
     verticalScrollBar->setVisible(v);
@@ -820,6 +837,30 @@ void DetView::setBorderCursor(const QPoint& p) {
 
         QPoint pos(p.x() + offset, p.y());
         GSequenceLineView::setBorderCursor(pos);
+    }
+}
+
+void DetView::setDefaultState() {
+    Settings* settings = AppContext::getSettings();
+    setWrapSequence(settings->getValue(SEQUENCE_WRAPPED, QVariant(true)).toBool());
+    setShowComplement(settings->getValue(COMPLEMENTARY_STRAND_SHOWN, QVariant(true)).toBool());
+    switch (static_cast<SequenceObjectContext::TranslationState>(settings->getValue(TRANSLATION_STATE, QVariant(SequenceObjectContext::TS_DoNotTranslate)).toInt())) {
+    case SequenceObjectContext::TS_DoNotTranslate:
+        doNotTranslateAction->setChecked(true);
+        sl_doNotTranslate();
+        break;
+    case SequenceObjectContext::TS_AnnotationsOrSelection:
+        translateAnnotationsOrSelectionAction->setChecked(true);
+        sl_translateAnnotationsOrSelection();
+        break;
+    case SequenceObjectContext::TS_SetUpFramesManually:
+        setUpFramesManuallyAction->setChecked(true);
+        sl_setUpFramesManually();
+        break;
+    case SequenceObjectContext::TS_ShowAllFrames:
+        showAllFramesAction->setChecked(true);
+        sl_showAllFrames();
+        break;
     }
 }
 

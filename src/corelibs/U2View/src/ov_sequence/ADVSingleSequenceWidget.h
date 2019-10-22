@@ -133,6 +133,11 @@ public:
 
     virtual void onSequenceObjectRenamed(const QString& oldName);
 
+    static const QString SEQUENCE_SETTINGS;
+    static const QString DET_VIEW_COLLAPSED;
+    static const QString ZOOM_VIEW_COLLAPSED;
+    static const QString OVERVIEW_COLLAPSED;
+
 signals:
     void si_titleClicked(ADVSequenceWidget*);
 

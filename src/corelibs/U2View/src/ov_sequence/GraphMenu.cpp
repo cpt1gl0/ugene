@@ -21,15 +21,17 @@
 
 #include "GraphMenu.h"
 
+#include <U2Core/DNAAlphabet.h>
 #include <U2Core/DNASequenceObject.h>
 #include <U2Core/L10n.h>
+#include <U2Core/Settings.h>
 #include <U2Core/U2SafePoints.h>
-#include <U2Core/DNAAlphabet.h>
 
 #include <U2Gui/GUIUtils.h>
 
 #include <U2View/ADVConstants.h>
 #include <U2View/ADVSequenceObjectContext.h>
+#include <U2View/ADVSingleSequenceWidget.h>
 #include <U2View/AnnotatedDNAView.h>
 
 #include <QApplication>
@@ -37,6 +39,8 @@
 
 
 namespace U2 {
+
+const QString GraphAction::GRAPH_VIEW_STATE = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/graphViewState";
 
 /**
  * Creates a graphs action.
@@ -49,8 +53,17 @@ GraphAction::GraphAction(GSequenceGraphFactory* _factory)
       view(NULL),
       isBookmarkUpdate(false)
 {
-    setObjectName(_factory->getGraphName());
+    setObjectName(factory->getGraphName());
     connect(this, SIGNAL(triggered()), SLOT(sl_handleGraphAction()));
+}
+
+void GraphAction::restoreState() {
+    QVariantMap mapState = AppContext::getSettings()->getValue(GRAPH_VIEW_STATE, QVariant()).toMap();
+    bool state = mapState.value(objectName(), QVariant(false)).toBool();
+    if (state != isChecked()) {
+        setChecked(state);
+        sl_handleGraphAction();
+    }
 }
 
 // This is maximum sequence size we allow to create graphs: 300Mb.
@@ -62,7 +75,8 @@ GraphAction::GraphAction(GSequenceGraphFactory* _factory)
  * Shows/hides a graph depending on its state: checked/unchecked
  */
 void GraphAction::sl_handleGraphAction() {
-    if (isChecked()) {
+    bool state = isChecked();
+    if (state) {
         SAFE_POINT(view == NULL, "Graph view is checked, but not available!",);
         // Getting the menu action
         GraphMenuAction* menuAction = qobject_cast<GraphMenuAction*>(parent());
@@ -93,6 +107,12 @@ void GraphAction::sl_handleGraphAction() {
         delete view;
         view = NULL;
     }
+    Settings* settings = AppContext::getSettings();
+    SAFE_POINT(nullptr != settings, "Settings are missed", );
+
+    QVariantMap mapState = settings->getValue(GRAPH_VIEW_STATE, QVariant()).toMap();
+    mapState.insert(objectName(), QVariant(state));
+    settings->setValue(GRAPH_VIEW_STATE, mapState);
 }
 
 void GraphAction::sl_renderError() {
@@ -171,6 +191,7 @@ void GraphMenuAction::addGraphAction(ADVSequenceObjectContext* ctx, GraphAction*
     action->setParent(graphMenuAction);
     graphMenuAction->menu->insertAction(graphMenuAction->separator, action);
     action->setCheckable(true);
+    action->restoreState();
 }
 
 void GraphMenuAction::sl_closeAllGraphs() {
