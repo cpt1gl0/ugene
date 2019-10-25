@@ -406,7 +406,8 @@ void CoreLib::initIncludedWorkers() {
     QString path = WorkflowSettings::getIncludedElementsDirectory();
     QDir dir(path);
     if(!dir.exists()) {
-        return;
+        bool mkdir = dir.mkdir(path);
+        CHECK(mkdir, );
     }
     dir.setNameFilters(QStringList() << "*.uwl");
     QFileInfoList fileList = dir.entryInfoList();

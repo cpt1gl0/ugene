@@ -198,11 +198,11 @@ QString WorkflowContextCMDLine::getOutputDirectory(U2OpStatus &os) {
     CMDLineRegistry* cmdlineReg = AppContext::getCMDLineRegistry();
     assert(cmdlineReg != nullptr);
 
-    if (cmdlineReg != nullptr && cmdlineReg->hasParameter(WORKING_DIR)) {
-        root = cmdlineReg->getParameterValue(WORKING_DIR);
-    } else if (useOutputDir()) {
+    if (useOutputDir()) {
         root = WorkflowSettings::getWorkflowOutputDirectory();
-    } else {
+    } else if (cmdlineReg != nullptr && cmdlineReg->hasParameter(WORKING_DIR)) {
+        root = cmdlineReg->getParameterValue(WORKING_DIR);
+    } else{
         root = QProcess().workingDirectory();
     }
 
