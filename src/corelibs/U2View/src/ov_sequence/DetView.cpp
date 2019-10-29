@@ -88,12 +88,13 @@ DetView::DetView(QWidget* p, SequenceObjectContext* ctx)
     doNotTranslateAction->setChecked(true);
 
     translateAnnotationsOrSelectionAction = new QAction(tr("Translate selection"), this);
+    translateAnnotationsOrSelectionAction->setObjectName("translate_selection_radiobutton");
     translateAnnotationsOrSelectionAction->setData(SequenceObjectContext::TS_AnnotationsOrSelection);
     connect(translateAnnotationsOrSelectionAction, SIGNAL(triggered(bool)), SLOT(sl_translateAnnotationsOrSelection()));
     translateAnnotationsOrSelectionAction->setCheckable(true);
 
     setUpFramesManuallyAction = new QAction(tr("Set up frames manually"), this);
-    setUpFramesManuallyAction->setObjectName("set_up_frames_manuallt_radiobutton");
+    setUpFramesManuallyAction->setObjectName("set_up_frames_manually_radiobutton");
     setUpFramesManuallyAction->setData(SequenceObjectContext::TS_SetUpFramesManually);
     connect(setUpFramesManuallyAction, SIGNAL(triggered(bool)), SLOT(sl_setUpFramesManually()));
     setUpFramesManuallyAction->setCheckable(true);
