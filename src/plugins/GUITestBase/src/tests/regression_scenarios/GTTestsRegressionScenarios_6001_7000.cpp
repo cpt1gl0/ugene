@@ -3155,20 +3155,12 @@ GUI_TEST_CLASS_DEFINITION(test_6616_1) {
     GTWidget::click(os, GTWidget::findWidget(os, "show_hide_zoom_view", toolbar));
     GTGlobals::sleep();
 
-    // 3. Open the "Graphs" popup menu and make the all of them visible
-    QStringList graphs = { "GC Content (%)", "AG Content (%)", "GC Frame Plot", "AT Deviation (A-T)/(A+T)", "GC Deviation (G-C)/(G+C)", "Karlin Signature Difference", "Informational Entropy" , "DNA Flexibility" };
-    foreach(const QString& g, graphs) {
-        GTUtilsDialog::waitForDialog(os, new PopupChooser(os, QStringList() << g, GTGlobals::UseMouse));
-        GTWidget::click(os, GTWidget::findWidget(os, "GraphMenuAction"));
-        GTUtilsTaskTreeView::waitTaskFinished(os);
-    }
-
-    // 4. Close the project and open it again
+    // 3. Close the project and open it again
     GTUtilsProject::closeProject(os);
     GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    // Expected state: Overiview, Details view and Zoom view are invisible, all graphs are visible
+    // Expected state: Overiview, Details view and Zoom view are invisible
     toolbar = GTWidget::findWidget(os, "views_tool_bar_NC_001363");
     CHECK_SET_ERR(toolbar != nullptr, "Cannot find views_tool_bar_NC_001363");
 
@@ -3183,10 +3175,6 @@ GUI_TEST_CLASS_DEFINITION(test_6616_1) {
 
     }
 
-    foreach(const QString& g, graphs) {
-        GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << g, PopupChecker::IsChecked));
-        GTWidget::click(os, GTWidget::findWidget(os, "GraphMenuAction"));
-    }
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6616_2) {
@@ -3250,20 +3238,37 @@ GUI_TEST_CLASS_DEFINITION(test_6616_3) {
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, QStringList() << "set_up_frames_manually_radiobutton"));
     GTWidget::click(os, translationsMenuToolbarButton);
     GTGlobals::sleep();
-    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+    //GTKeyboardDriver::keyClick(Qt::Key_Escape);
 
-    // 4. Close the project and open it again
+    QStringList frames = { "Frame +3", "Frame +2", "Frame +1", "Frame -1", "Frame -2", "Frame -3" };
+    foreach(const QString & frame, frames) {
+        GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, QStringList() << frame));
+        GTWidget::click(os, translationsMenuToolbarButton);
+        GTGlobals::sleep();
+        //GTKeyboardDriver::keyClick(Qt::Key_Escape);
+    }
+
+    // 3. Close the project and open it again
     GTUtilsProject::closeProject(os);
     GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    // Expected state: "Wrap sequence", "Show complementary strand" are disabled, all graphs are visible
+    // Expected state: "Set up frames manually" mode and disable the all frames
     translationsMenuToolbarButton = GTWidget::findWidget(os, "translationsMenuToolbarButton");
     CHECK_SET_ERR(translationsMenuToolbarButton != nullptr, "Cannot find translationsMenuToolbarButton");
 
-    GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << "translate_selection_radiobutton"));
+    GTUtilsDialog::waitForDialog(os, new PopupCheckerByText(os, QStringList(), frames));
     GTWidget::click(os, translationsMenuToolbarButton);
+    GTGlobals::sleep();
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
 
+    //QStringList frames = { "Frame +3", "Frame +2", "Frame +1", "Frame -1", "Frame -2", "Frame -3" };
+    foreach(const QString& frame, frames) {
+        GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, QStringList() << frame));
+        GTWidget::click(os, translationsMenuToolbarButton);
+        GTGlobals::sleep();
+        //GTKeyboardDriver::keyClick(Qt::Key_Escape);
+    }
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6616_4) {
