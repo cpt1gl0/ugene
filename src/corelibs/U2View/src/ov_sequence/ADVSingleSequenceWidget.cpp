@@ -27,13 +27,13 @@
 
 #include <U2Core/AnnotationSelection.h>
 #include <U2Core/AnnotationTableObject.h>
-#include <U2Core/GUrlUtils.h>
 #include <U2Core/DNAAlphabet.h>
 #include <U2Core/DNASequenceObject.h>
 #include <U2Core/DNASequenceSelection.h>
 #include <U2Core/DocumentModel.h>
 #include <U2Core/GHints.h>
 #include <U2Core/GObjectRelationRoles.h>
+#include <U2Core/GUrlUtils.h>
 #include <U2Core/L10n.h>
 #include <U2Core/QObjectScopedPointer.h>
 #include <U2Core/Settings.h>

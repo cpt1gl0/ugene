@@ -44,7 +44,7 @@
 
 namespace U2 {
 
-const QString SequenceObjectContext::MANUAL_FRAMES = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/manualFrames";
+const QString SequenceObjectContext::MANUAL_FRAMES = "sequenceViewSettings/manualFrames";
 const QVariantList SequenceObjectContext::DEFAULT_TRANSLATIONS = { 0, 1, 2, 3, 4, 5 };
 
 SequenceObjectContext::SequenceObjectContext (U2SequenceObject* obj, QObject* parent)
@@ -89,7 +89,7 @@ SequenceObjectContext::SequenceObjectContext (U2SequenceObject* obj, QObject* pa
                     a = visibleFrames->addAction(tr("Frame -%1").arg(i + 1 - 3));
                 }
                 a->setCheckable(true);
-                a->setChecked(translationStates.contains(i));
+                a->setChecked(false);
                 a->setEnabled(false);
                 //set row id
                 a->setData(i);
@@ -437,10 +437,8 @@ bool SequenceObjectContext::isRowChoosed(){
 QVector<bool> SequenceObjectContext::getTranslationRowsVisibleStatus() {
     QVector<bool> result;
     if (visibleFrames != NULL) {
-        QList<QAction*> actions = visibleFrames->actions();
-        foreach(QAction* a, actions) {
-            bool isChecked = a->isChecked();
-            result.append(isChecked);
+        foreach(QAction* a, visibleFrames->actions()) {
+            result.append(a->isChecked());
         }
     }
     return result;

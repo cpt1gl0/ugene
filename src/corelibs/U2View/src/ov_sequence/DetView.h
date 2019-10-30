@@ -135,10 +135,10 @@ private:
     void updateTranslationsState(const U2Strand::Direction direction);
     void updateSelectedTranslations(const SequenceObjectContext::TranslationState& state);
 
+    static const QString SEQUENCE_SETTINGS;
     static const QString SEQUENCE_WRAPPED;
     static const QString COMPLEMENTARY_STRAND_SHOWN;
     static const QString TRANSLATION_STATE;
-    static const QString MANUAL_FRAMES;
 };
 
 class U2VIEW_EXPORT DetViewRenderArea : public GSequenceLineViewAnnotatedRenderArea {

@@ -42,15 +42,11 @@ class U2VIEW_EXPORT GraphAction : public QAction
 public:
     GraphAction(GSequenceGraphFactory*);
 
-    void restoreState();
-
 private:
     GSequenceGraphFactory*  factory;
     GSequenceGraphView*     view;
     bool                    isBookmarkUpdate;
     QList<QVariant>         positions;
-
-    static const QString GRAPH_VIEW_STATE;
 
 private slots:
     void sl_handleGraphAction();

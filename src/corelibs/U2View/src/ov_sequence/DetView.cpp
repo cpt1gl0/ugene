@@ -22,8 +22,8 @@
 #include "DetView.h"
 #include "DetViewSequenceEditor.h"
 
-#include "ADVSingleSequenceWidget.h"
 #include "ADVSequenceObjectContext.h"
+#include "ADVSingleSequenceWidget.h"
 #include "view_rendering/DetViewSingleLineRenderer.h"
 #include "view_rendering/DetViewMultiLineRenderer.h"
 
@@ -62,9 +62,10 @@ namespace U2 {
 /* DetView */
 /************************************************************************/
 
-const QString DetView::SEQUENCE_WRAPPED = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/sequenceWrapped";
-const QString DetView::COMPLEMENTARY_STRAND_SHOWN = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/complimentaryHidden";
-const QString DetView::TRANSLATION_STATE = ADVSingleSequenceWidget::SEQUENCE_SETTINGS + "/translationState";
+const QString DetView::SEQUENCE_SETTINGS = "sequenceViewSettings";
+const QString DetView::SEQUENCE_WRAPPED = SEQUENCE_SETTINGS + "/sequenceWrapped";
+const QString DetView::COMPLEMENTARY_STRAND_SHOWN = SEQUENCE_SETTINGS + "/complementaryHidden";
+const QString DetView::TRANSLATION_STATE = SEQUENCE_SETTINGS + "/translationState";
 
 DetView::DetView(QWidget* p, SequenceObjectContext* ctx)
     : GSequenceLineViewAnnotated(p, ctx)
