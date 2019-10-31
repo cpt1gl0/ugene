@@ -58,6 +58,7 @@ Overview::Overview(ADVSingleSequenceWidget *p, ADVSequenceObjectContext *ctx)
     detView = p->getDetView();
 
     QAction* densityGraphAction = new QAction( QIcon(":core/images/sum.png"), "", this);
+    densityGraphAction->setObjectName("density_graph_action");
     densityGraphAction->setCheckable(true);
     densityGraphAction->setToolTip(tr("Toggle annotation density graph"));
     addActionToLocalToolbar(densityGraphAction);
@@ -74,7 +75,9 @@ Overview::Overview(ADVSingleSequenceWidget *p, ADVSequenceObjectContext *ctx)
         SLOT(sl_onAnnotationSettingsChanged(const QStringList &)));
 
     sl_visibleRangeChanged();
-    setGraphActionVisible(AppContext::getSettings()->getValue(ANNOTATION_GRAPH_STATE, QVariant(false)).toBool());
+    bool graphState = AppContext::getSettings()->getValue(ANNOTATION_GRAPH_STATE, QVariant(false)).toBool();
+    setGraphActionVisible(graphState);
+    densityGraphAction->setChecked(graphState);
     pack();
 }
 
@@ -389,7 +392,7 @@ void Overview::connectAnnotationTableObject(AnnotationTableObject *object) {
 void Overview::setGraphActionVisible(const bool setVisible) {
     OverviewRenderArea* ra = qobject_cast<OverviewRenderArea*>(renderArea);
     SAFE_POINT(nullptr != ra, "OverviewRenderArea is nullptr", );
-    CHECK(ra->isGraphVisible() != setVisible);
+    CHECK(ra->isGraphVisible() != setVisible, );
 
     AppContext::getSettings()->setValue(ANNOTATION_GRAPH_STATE, QVariant(setVisible));
     ra->setGraphVisibility(setVisible);

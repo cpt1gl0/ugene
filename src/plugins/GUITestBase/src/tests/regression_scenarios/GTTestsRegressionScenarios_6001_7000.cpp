@@ -3174,7 +3174,6 @@ GUI_TEST_CLASS_DEFINITION(test_6616_1) {
         CHECK_SET_ERR(!button->isChecked(), QString("%1 QToolButton should bew unchecked").arg(v));
 
     }
-
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6616_2) {
@@ -3221,7 +3220,7 @@ GUI_TEST_CLASS_DEFINITION(test_6616_2) {
     translationsMenuToolbarButton = GTWidget::findWidget(os, "translationsMenuToolbarButton");
     CHECK_SET_ERR(translationsMenuToolbarButton != nullptr, "Cannot find translationsMenuToolbarButton");
 
-    GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << "translate_selection_radiobutton"));
+    GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << "translate_selection_radiobutton", PopupChecker::IsChecked));
     GTWidget::click(os, translationsMenuToolbarButton);
 
 }
@@ -3238,42 +3237,85 @@ GUI_TEST_CLASS_DEFINITION(test_6616_3) {
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, QStringList() << "set_up_frames_manually_radiobutton"));
     GTWidget::click(os, translationsMenuToolbarButton);
     GTGlobals::sleep();
-    //GTKeyboardDriver::keyClick(Qt::Key_Escape);
 
-    QStringList frames = { "Frame +3", "Frame +2", "Frame +1", "Frame -1", "Frame -2", "Frame -3" };
+    QStringList frames = { "Frame +1", "Frame +2", "Frame +3", "Frame -1", "Frame -2", "Frame -3" };
     foreach(const QString & frame, frames) {
         GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, QStringList() << frame));
-        GTWidget::click(os, translationsMenuToolbarButton);
-        GTGlobals::sleep();
-        //GTKeyboardDriver::keyClick(Qt::Key_Escape);
     }
+    GTWidget::click(os, translationsMenuToolbarButton);
 
     // 3. Close the project and open it again
     GTUtilsProject::closeProject(os);
     GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    // Expected state: "Set up frames manually" mode and disable the all frames
+    // Expected state: "Set up frames manually" mode is choosen and the all frames are disable
     translationsMenuToolbarButton = GTWidget::findWidget(os, "translationsMenuToolbarButton");
     CHECK_SET_ERR(translationsMenuToolbarButton != nullptr, "Cannot find translationsMenuToolbarButton");
+
+    GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << "set_up_frames_manually_radiobutton", PopupChecker::IsChecked));
+    GTWidget::click(os, translationsMenuToolbarButton);
+    GTGlobals::sleep();
+
 
     GTUtilsDialog::waitForDialog(os, new PopupCheckerByText(os, QStringList(), frames));
     GTWidget::click(os, translationsMenuToolbarButton);
     GTGlobals::sleep();
     GTKeyboardDriver::keyClick(Qt::Key_Escape);
-
-    //QStringList frames = { "Frame +3", "Frame +2", "Frame +1", "Frame -1", "Frame -2", "Frame -3" };
-    foreach(const QString& frame, frames) {
-        GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, QStringList() << frame));
-        GTWidget::click(os, translationsMenuToolbarButton);
-        GTGlobals::sleep();
-        //GTKeyboardDriver::keyClick(Qt::Key_Escape);
-    }
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6616_4) {
+    // 1. Open "samples/Genbank/murine.gb".
+    GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    // 2. Choose "Show all frames" mode
+    QWidget* translationsMenuToolbarButton = GTWidget::findWidget(os, "translationsMenuToolbarButton");
+    CHECK_SET_ERR(translationsMenuToolbarButton != nullptr, "Cannot find translationsMenuToolbarButton");
+
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, QStringList() << "show_all_frames_radiobutton"));
+    GTWidget::click(os, translationsMenuToolbarButton);
+    GTGlobals::sleep();
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+
+    // 3. Close the project and open it again
+    GTUtilsProject::closeProject(os);
+    GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    // Expected state: "Show all frames" mode is choosen
+    translationsMenuToolbarButton = GTWidget::findWidget(os, "translationsMenuToolbarButton");
+    CHECK_SET_ERR(translationsMenuToolbarButton != nullptr, "Cannot find translationsMenuToolbarButton");
+
+    GTUtilsDialog::waitForDialog(os, new PopupChecker(os, QStringList() << "show_all_frames_radiobutton", PopupChecker::IsChecked));
+    GTWidget::click(os, translationsMenuToolbarButton);
+    GTGlobals::sleep();
 
 }
+
+GUI_TEST_CLASS_DEFINITION(test_6616_5) {
+    // 1. Open "samples/Genbank/murine.gb".
+    GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    // 2. Click "Toggle annotation density graph"
+    QAction* destGraph = GTAction::findAction(os, "density_graph_action");
+    CHECK_SET_ERR(destGraph != nullptr, "Cannot find \"Toggle annotation density graph\" action");
+
+    GTWidget::click(os, GTAction::button(os, destGraph));
+
+    // 3. Close the project and open it again
+    GTUtilsProject::closeProject(os);
+    GTFileDialog::openFile(os, dataDir + "samples/Genbank/murine.gb");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    // Expected state: "Toggle annotation density graph" is turned on
+
+    destGraph = GTAction::findAction(os, "density_graph_action");
+    CHECK_SET_ERR(destGraph != nullptr, "Cannot find \"Toggle annotation density graph\" action");
+    CHECK_SET_ERR(destGraph->isChecked(), "\"Toggle annotation density graph\" is unchecked, but should be");
+}
+
 
 } // namespace GUITest_regression_scenarios
 
