@@ -201,7 +201,7 @@ QString WorkflowContextCMDLine::getOutputDirectory(U2OpStatus &os) {
     if (useOutputDir()) {
         root = WorkflowSettings::getWorkflowOutputDirectory();
     } else if (cmdlineReg != nullptr && cmdlineReg->hasParameter(WORKING_DIR)) {
-        root = cmdlineReg->getParameterValue(WORKING_DIR);
+        root = QDir(cmdlineReg->getParameterValue(WORKING_DIR)).absolutePath();
     } else{
         root = QProcess().workingDirectory();
     }

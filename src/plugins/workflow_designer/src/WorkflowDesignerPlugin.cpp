@@ -121,16 +121,16 @@ void WorkflowDesignerPlugin::processCMDLineOptions() {
     assert(cmdlineReg != nullptr);
 
     if (cmdlineReg->hasParameter(CUSTOM_EL_WITH_SCRIPTS_DIR)) {
-        WorkflowSettings::setUserDirectory(cmdlineReg->getParameterValue(CUSTOM_EL_WITH_SCRIPTS_DIR));
+        WorkflowSettings::setUserDirectory(QDir(cmdlineReg->getParameterValue(CUSTOM_EL_WITH_SCRIPTS_DIR)).absolutePath());
     }
     if (cmdlineReg->hasParameter(CUSTOM_EXTERNAL_TOOL_DIR)) {
-        WorkflowSettings::setExternalToolDirectory(cmdlineReg->getParameterValue(CUSTOM_EXTERNAL_TOOL_DIR));
+        WorkflowSettings::setExternalToolDirectory(QDir(cmdlineReg->getParameterValue(CUSTOM_EXTERNAL_TOOL_DIR)).absolutePath());
     }
     if (cmdlineReg->hasParameter(INCLUDED_ELEMENTS_DIR)) {
-        WorkflowSettings::setIncludedElementsDirectory(cmdlineReg->getParameterValue(INCLUDED_ELEMENTS_DIR));
+        WorkflowSettings::setIncludedElementsDirectory(QDir(cmdlineReg->getParameterValue(INCLUDED_ELEMENTS_DIR)).absolutePath());
     }
     if (cmdlineReg->hasParameter(WORKFLOW_OUTPUT_DIR)) {
-        WorkflowSettings::setWorkflowOutputDirectory(cmdlineReg->getParameterValue(WORKFLOW_OUTPUT_DIR));
+        WorkflowSettings::setWorkflowOutputDirectory(QDir(cmdlineReg->getParameterValue(WORKFLOW_OUTPUT_DIR)).absolutePath());
     }
 
     bool consoleMode = !AppContext::isGUIMode(); // only in console mode we run workflows by default. Otherwise we show them
