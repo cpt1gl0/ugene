@@ -55,6 +55,7 @@
 #include <U2Core/DataBaseRegistry.h>
 #include <U2Core/DataPathRegistry.h>
 #include <U2Core/ExternalToolRegistry.h>
+#include <U2Core/FileAndDirectoryUtils.h>
 #include <U2Core/GObjectTypes.h>
 #include <U2Core/LoadRemoteDocumentTask.h>
 #include <U2Core/Log.h>
@@ -466,19 +467,19 @@ int main(int argc, char **argv)
     }
 
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DOWNLOAD_DIR)) {
-        userAppSettings->setDownloadDirPath(QDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DOWNLOAD_DIR)).absolutePath());
+        userAppSettings->setDownloadDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DOWNLOAD_DIR))).absolutePath());
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR)) {
-        userAppSettings->setCustomToolsConfigsDirPath(QDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR)).absolutePath());
+        userAppSettings->setCustomToolsConfigsDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR))).absolutePath());
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::TMP_DIR)) {
-        userAppSettings->setUserTemporaryDirPath(QDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR)).absolutePath());
+        userAppSettings->setUserTemporaryDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR))).absolutePath());
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DEFAULT_DATA_DIR)) {
-        userAppSettings->setDefaultDataDirPath(QDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DEFAULT_DATA_DIR)).absolutePath());
+        userAppSettings->setDefaultDataDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DEFAULT_DATA_DIR))).absolutePath());
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::FILE_STORAGE_DIR)) {
-        userAppSettings->setFileStorageDir(QDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::FILE_STORAGE_DIR)).absolutePath());
+        userAppSettings->setFileStorageDir(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::FILE_STORAGE_DIR))).absolutePath());
     }
 
 
