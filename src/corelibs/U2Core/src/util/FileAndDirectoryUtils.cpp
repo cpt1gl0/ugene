@@ -132,13 +132,13 @@ void FileAndDirectoryUtils::dumpStringToFile(QFile *f, QString &str) {
     str.clear();
 }
 
-QString FileAndDirectoryUtils::getAbsoluteHomeDir(const QString& filePath) {
-    QString result = filePath;
-    if (QDir::fromNativeSeparators(result).startsWith(HOME_DIR_IDENTIFIER, Qt::CaseInsensitive)) {
+QString FileAndDirectoryUtils::getAbsoluteDir(const QString& filePath) {
+    QString result = QDir::fromNativeSeparators(filePath);
+    if (result.startsWith(HOME_DIR_IDENTIFIER, Qt::CaseInsensitive)) {
         result.remove(0, HOME_DIR_IDENTIFIER.length() - 1);
         result.prepend(QDir::homePath());
     }
-    return result;
+    return QDir(result).absolutePath();
 }
 
 } // U2

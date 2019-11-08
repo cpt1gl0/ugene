@@ -97,21 +97,20 @@ int main(int argc, char **argv)
     UserAppsSettings* userAppSettings = AppContext::getAppSettings()->getUserAppsSettings();
 
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DOWNLOAD_DIR)) {
-        userAppSettings->setDownloadDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DOWNLOAD_DIR))).absolutePath());
+        userAppSettings->setDownloadDirPath(FileAndDirectoryUtils::getAbsoluteDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DOWNLOAD_DIR)));
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR)) {
-        userAppSettings->setCustomToolsConfigsDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR))).absolutePath());
+        userAppSettings->setCustomToolsConfigsDirPath(FileAndDirectoryUtils::getAbsoluteDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::CUSTOM_TOOLS_CONFIG_DIR)));
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::TMP_DIR)) {
-        userAppSettings->setUserTemporaryDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR))).absolutePath());
+        userAppSettings->setUserTemporaryDirPath(FileAndDirectoryUtils::getAbsoluteDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::TMP_DIR)));
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::DEFAULT_DATA_DIR)) {
-        userAppSettings->setDefaultDataDirPath(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DEFAULT_DATA_DIR))).absolutePath());
+        userAppSettings->setDefaultDataDirPath(FileAndDirectoryUtils::getAbsoluteDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::DEFAULT_DATA_DIR)));
     }
     if (cmdLineRegistry->hasParameter(CMDLineCoreOptions::FILE_STORAGE_DIR)) {
-        userAppSettings->setFileStorageDir(QDir(FileAndDirectoryUtils::getAbsoluteHomeDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::FILE_STORAGE_DIR))).absolutePath());
+        userAppSettings->setFileStorageDir(FileAndDirectoryUtils::getAbsoluteDir(cmdLineRegistry->getParameterValue(CMDLineCoreOptions::FILE_STORAGE_DIR)));
     }
-
     // 2 create functional components of ugene
 
     ResourceTracker* resTrack = new ResourceTracker();

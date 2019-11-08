@@ -136,7 +136,7 @@ void SaveDocumentController::addFormat(const QString &id, const QString &name, c
 }
 
 QString SaveDocumentController::getSaveFileName() const {
-    return FileAndDirectoryUtils::getAbsoluteHomeDir(conf.fileNameEdit->text());
+    return FileAndDirectoryUtils::getAbsoluteDir(conf.fileNameEdit->text());
 }
 
 DocumentFormatId SaveDocumentController::getFormatIdToSave() const {
