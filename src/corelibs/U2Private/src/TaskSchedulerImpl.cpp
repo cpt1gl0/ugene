@@ -84,6 +84,7 @@ TaskSchedulerImpl::TaskSchedulerImpl(AppResourcePool* rp) {
     timer.start(UPDATE_TIMEOUT);
 
     stateChangesObserved = false;
+    stateIsLoaded = false;
     threadsResource = resourcePool->getResource(RESOURCE_THREAD);
 
     createSleepPreventer();
@@ -544,6 +545,9 @@ void TaskSchedulerImpl::registerTopLevelTask(Task* task) {
     topLevelTasks.append(task);
     emit si_topLevelTaskRegistered(task);
     newTasks.append(task);
+    if (!stateIsLoaded) {
+        loadingTasks.append(task);
+    }
 
     sleepPreventer->capture();
 }
@@ -601,10 +605,18 @@ bool TaskSchedulerImpl::addToPriorityQueue(Task* task, TaskInfo* pti) {
 void TaskSchedulerImpl::unregisterTopLevelTask(Task* task) {
     SAFE_POINT(task != NULL, "Trying to unregister NULL task",);
     SAFE_POINT(topLevelTasks.contains(task), QString("Trying to unregister task that is not top-level"),);
+    SAFE_POINT(loadingTasks.isEmpty() || !stateIsLoaded, QString("Loading tasks are absent or the state is not 'loaded' should be"), );
 
     taskLog.trace(tr("Unregistering task: %1").arg(task->getTaskName()));
     stopTask(task);
     topLevelTasks.removeOne(task);
+    if (!stateIsLoaded) {
+        loadingTasks.removeOne(task);
+        if (loadingTasks.isEmpty()) {
+            stateIsLoaded = true;
+            emit si_loadingIsFinished();
+        }
+    }
 
     emit si_topLevelTaskUnregistered(task);
 
