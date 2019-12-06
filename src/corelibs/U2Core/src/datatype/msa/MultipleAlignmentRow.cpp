@@ -70,6 +70,10 @@ int MultipleAlignmentRowData::getUngappedPosition(int pos) const {
     return MsaRowUtils::getUngappedPosition(gaps, sequence.length(), pos);
 }
 
+U2Region MultipleAlignmentRowData::getGapped(const U2Region& region) const {
+    return MsaRowUtils::getGappedRegion(gaps, region);
+}
+
 bool MultipleAlignmentRowData::isTrailingOrLeadingGap(qint64 position) const {
     CHECK(isGap(position), false);
     if (position < getCoreStart() || position > getCoreEnd() - 1) {

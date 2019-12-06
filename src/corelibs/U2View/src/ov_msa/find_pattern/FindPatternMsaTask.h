@@ -19,37 +19,40 @@
  * MA 02110-1301, USA.
  */
 
-#ifndef _U2_MSA_EDITOR_STATUS_BAR_H_
-#define _U2_MSA_EDITOR_STATUS_BAR_H_
+#ifndef _U2_FIND_PATTERN_MSA_TASK_H_
+#define _U2_FIND_PATTERN_MSA_TASK_H_
 
-#include "MaEditorStatusBar.h"
+#include <U2Core/U2Region.h>
 
-#include <QRegExpValidator>
-
-class QLineEdit;
-class QPushButton;
+#include "ov_sequence/find_pattern/FindPatternTask.h"
 
 namespace U2 {
 
-class DNAAlphabet;
-class MaSearchValidator;
+class MultipleSequenceAlignmentObject;
+class MultiTask;
 
-class MsaEditorStatusBar : public MaEditorStatusBar {
-    Q_OBJECT
+struct FindPatternMsaSettings {
+    MultipleSequenceAlignmentObject* msaObj;
+    QList<NamePattern> patterns;
+    bool removeOverlaps;
+    int matchValue;
+    FindAlgorithmSettings findSettings;
+};
+
+class FindPatternMsaTask : public Task {
 public:
-    MsaEditorStatusBar(MultipleAlignmentObject* mobj, MaEditorSequenceArea* seqArea);
+    FindPatternMsaTask(const FindPatternMsaSettings& settings);
 
+    void prepare();
+    QList<Task*> onSubTaskFinished(Task* subTask);
+    QMap<int, QList<U2Region> > getResults() const;
 private:
-    void setupLayout();
-    void updateLabels();
+    FindPatternMsaSettings settings;
+    MultiTask* searchMultitask;
+
+    QMap<int, QList<U2Region> > resultsBySeqIndex;
 };
 
-class MaSearchValidator : public QRegExpValidator {
-public:
-    MaSearchValidator(const DNAAlphabet* alphabet, QObject* parent);
-    State validate(QString &input, int &pos) const;
-};
+}
 
-} // namespace
-
-#endif // _U2_MSA_EDITOR_STATUS_BAR_H_
+#endif

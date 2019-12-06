@@ -23,6 +23,7 @@
 #define _U2_TEXT_UTILS_H_
 
 #include <U2Core/global.h>
+#include <U2Core/L10n.h>
 #include <U2Core/U2SafePoints.h>
 
 #include <assert.h>
@@ -33,6 +34,7 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QVector>
+#include <QWidget>
 
 namespace U2 {
 
@@ -116,6 +118,10 @@ public:
     inline static void wrapForCSV(QString& str);
 
     inline static QStringList transposeCSVRows(const QStringList& rows, const QString& delimiter="\t");
+
+    inline static void highlightBackground(QWidget* widget);
+
+    inline static void doNotHighlightBackground(QWidget* widget);
 };
 
 template <typename T>
@@ -346,6 +352,15 @@ inline QStringList TextUtils::transposeCSVRows(const QStringList& rows, const QS
         transposedRows[i].remove(transposedRows[i].length()-1,1);
     }
     return transposedRows;
+}
+
+inline void TextUtils::highlightBackground(QWidget* widget) {
+    widget->setStyleSheet("background-color: " + L10N::errorColorTextFieldStr() + ";");
+}
+
+
+inline void TextUtils::doNotHighlightBackground(QWidget* widget) {
+    widget->setStyleSheet("background-color: white;");
 }
 
 } //namespace

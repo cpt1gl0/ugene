@@ -119,6 +119,24 @@ qint64 MsaRowUtils::getUngappedPosition(const U2MsaRowGapModel &gaps, qint64 dat
     return position - gapsLength;
 }
 
+U2Region MsaRowUtils::getGappedRegion(const U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
+    int startGapsLength = 0;
+    int innerGapsLength = 0;
+    foreach(const U2MsaGap & gap, gaps) {
+        if (gap.offset < ungappedRegion.startPos) {
+                startGapsLength += gap.gap;
+        } else if (gap.offset < ungappedRegion.endPos()) {
+            innerGapsLength += gap.gap;
+        } else {
+            break;
+        }
+    }
+    U2Region result(ungappedRegion);
+    result.startPos += startGapsLength;
+    result.length += innerGapsLength;
+    return result;
+}
+
 int MsaRowUtils::getCoreStart(const U2MsaRowGapModel &gaps) {
     if (!gaps.isEmpty() && gaps.first().offset == 0) {
         return gaps.first().gap;
