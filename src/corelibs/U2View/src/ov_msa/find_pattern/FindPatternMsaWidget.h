@@ -197,8 +197,6 @@ private:
     QWidget *useMaxResultLenContainer;
     QCheckBox* boxUseMaxResultLen;
     QSpinBox* boxMaxResultLen;
-
-    MaEditorSelection currentSelection;
         
     static const int DEFAULT_RESULTS_NUM_LIMIT;
     static const int DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;

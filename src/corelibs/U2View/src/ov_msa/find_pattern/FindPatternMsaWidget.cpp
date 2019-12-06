@@ -430,9 +430,8 @@ void FindPatternMsaWidget::sl_onAlgorithmChanged(int index)
 
 void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
 {
-    /*
     if (!currentSelection.isEmpty()){
-        disconnect(currentSelection, SIGNAL(si_selectionChanged(LRegionsSelection*, const QVector<U2Region>&, const QVector<U2Region>&)),
+        disconnect(currentSelection, SIGNAL(si_selectionChanged(const MaEditorSelection & current, const MaEditorSelection & prev)),
             this, SLOT(sl_onSelectedRegionChanged()));
     }
     if (boxRegion->itemData(index).toInt() == RegionSelectionIndex_WholeSequence) {
@@ -462,7 +461,6 @@ void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
         editEnd->show();
         sl_onSelectedRegionChanged();
     }
-    */
 }
 
 void FindPatternMsaWidget::sl_onRegionValueEdited()
