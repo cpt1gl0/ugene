@@ -1185,7 +1185,7 @@ void FindPatternWidget::initFindPatternTask(const QList<NamePattern> &patterns) 
     settings.maxErr = 0;
 
     settings.useAmbiguousBases = useAmbiguousBasesBox->isChecked();
-    settings.maxRegExpResult = boxUseMaxResultLen->isChecked() ?
+    settings.maxRegExpResultLength = boxUseMaxResultLen->isChecked() ?
         boxMaxResultLen->value() :
     DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;
 

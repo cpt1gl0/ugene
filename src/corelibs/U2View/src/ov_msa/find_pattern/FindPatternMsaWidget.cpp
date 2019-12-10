@@ -67,8 +67,6 @@
 #include "FindPatternMsaTask.h"
 #include "FindPatternMsaWidget.h"
 
-#include "../MSAEditorSequenceArea.h"
-
 const QString NEW_LINE_SYMBOL = "\n";
 const QString STYLESHEET_COLOR_DEFINITION = "color: ";
 const QString STYLESHEET_DEFINITIONS_SEPARATOR = ";";
@@ -325,19 +323,12 @@ void FindPatternMsaWidget::initRegionSelection()
     boxRegion->addItem(FindPatternMsaWidget::tr("Whole sequence"), RegionSelectionIndex_WholeSequence);
     boxRegion->addItem(FindPatternMsaWidget::tr("Custom region"), RegionSelectionIndex_CustomRegion);
     boxRegion->addItem(FindPatternMsaWidget::tr("Selected region"), RegionSelectionIndex_CurrentSelectedRegion);
-    /*
-    ADVSequenceObjectContext* activeContext = annotatedDnaView->getSequenceInFocus();
-    SAFE_POINT(NULL != activeContext, "Internal error: sequence context is NULL during region selection init.",);
-
     setRegionToWholeSequence();
 
-    editStart->setValidator(new QIntValidator(1, activeContext->getSequenceLength(), editStart));
-    editEnd->setValidator(new QIntValidator(1, activeContext->getSequenceLength(), editEnd));
-
-    currentSelection = annotatedDnaView->getSequenceInFocus()->getSequenceSelection();
+    editStart->setValidator(new QIntValidator(1, msaEditor->getAlignmentLen(), editStart));
+    editEnd->setValidator(new QIntValidator(1, msaEditor->getAlignmentLen(), editEnd));
 
     sl_onRegionOptionChanged(RegionSelectionIndex_WholeSequence);
-    */
 }
 
 
@@ -388,7 +379,7 @@ void FindPatternMsaWidget::initMaxResultLenContainer() {
 
 void FindPatternMsaWidget::connectSlots()
 {
-    connect(boxAlgorithm, SIGNAL(currentIndexChanged(int)), SLOT(FindPatternMsaWidget::sl_onAlgorithmChanged(int)));
+    connect(boxAlgorithm, SIGNAL(currentIndexChanged(int)), SLOT(sl_onAlgorithmChanged(int)));
     connect(boxRegion, SIGNAL(currentIndexChanged(int)), SLOT(sl_onRegionOptionChanged(int)));
     connect(textPattern, SIGNAL(textChanged()), SLOT(sl_onSearchPatternChanged()));
     connect(editStart, SIGNAL(textChanged(QString)), SLOT(sl_onRegionValueEdited()));
@@ -411,10 +402,6 @@ void FindPatternMsaWidget::connectSlots()
     connect(spinMatch, SIGNAL(valueChanged(int)), SLOT(sl_activateNewSearch()));
 }
 
-void FindPatternMsaWidget::sl_nigguz() {
-
-}
-
 void FindPatternMsaWidget::sl_onAlgorithmChanged(int index)
 {
     int previousAlgorithm = selectedAlgorithm;
@@ -430,9 +417,9 @@ void FindPatternMsaWidget::sl_onAlgorithmChanged(int index)
 
 void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
 {
-    if (!currentSelection.isEmpty()){
-        disconnect(currentSelection, SIGNAL(si_selectionChanged(const MaEditorSelection & current, const MaEditorSelection & prev)),
-            this, SLOT(sl_onSelectedRegionChanged()));
+    if (!msaSelectionEmptyOrNull()){
+        disconnect(msaEditor->getUI()->getSequenceArea(), SIGNAL(si_selectionChanged(const MaEditorSelection &, const MaEditorSelection &)),
+            this, SLOT(sl_onSelectedRegionChanged(const MaEditorSelection &, const MaEditorSelection &)));
     }
     if (boxRegion->itemData(index).toInt() == RegionSelectionIndex_WholeSequence) {
         editStart->hide();
@@ -448,18 +435,15 @@ void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
         editStart->setReadOnly(false);
         editEnd->setReadOnly(false);
 
-        ADVSequenceObjectContext* activeContext = annotatedDnaView->getSequenceInFocus();
-        SAFE_POINT(NULL != activeContext, "Internal error: there is no sequence in focus!",);
-        getCompleteSearchRegion(regionIsCorrect, activeContext->getSequenceLength());
+        getCompleteSearchRegion(regionIsCorrect, msaEditor->getAlignmentLen());
         checkState();
     }else if(boxRegion->itemData(index).toInt() == RegionSelectionIndex_CurrentSelectedRegion) {
-        currentSelection = annotatedDnaView->getSequenceInFocus()->getSequenceSelection();
-        connect(currentSelection, SIGNAL(si_selectionChanged(LRegionsSelection* , const QVector<U2Region>&, const QVector<U2Region>&)),
-            this, SLOT(sl_onSelectedRegionChanged()) );
+        connect(msaEditor->getUI()->getSequenceArea(), SIGNAL(si_selectionChanged(const MaEditorSelection &, const MaEditorSelection &)),
+            this, SLOT(sl_onSelectedRegionChanged(const MaEditorSelection &, const MaEditorSelection &)));
         editStart->show();
         lblStartEndConnection->show();
         editEnd->show();
-        sl_onSelectedRegionChanged();
+        sl_onSelectedRegionChanged(msaEditor->getUI()->getSequenceArea()->getSelection(), MaEditorSelection());
     }
 }
 
@@ -951,12 +935,13 @@ void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &pattern
 
     settings.findSettings.maxErr = 0;
 
-    settings.findSettings.maxRegExpResult = boxUseMaxResultLen->isChecked() ?
+    settings.findSettings.maxRegExpResultLength = boxUseMaxResultLen->isChecked() ?
         boxMaxResultLen->value() :
     DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;
 
     // Creating and registering the task
-    bool removeOverlaps = removeOverlapsBox->isChecked();
+    settings.removeOverlaps = removeOverlapsBox->isChecked();
+    settings.findSettings.maxResult2Find = boxMaxResult->value();
 
     SAFE_POINT(searchTask == NULL, "Search task is not NULL", );
     nextPushButton->setDisabled(true);
@@ -1024,33 +1009,16 @@ bool FindPatternMsaWidget::checkPatternRegion( const QString& pattern ){
     return true;
 }
 
-void FindPatternMsaWidget::sl_onSelectedRegionChanged(){
-    /*
-    if(!currentSelection.isEmpty()){
-        U2Region firstReg = currentSelection->getSelectedRegions().first();
+void FindPatternMsaWidget::sl_onSelectedRegionChanged(const MaEditorSelection& current, const MaEditorSelection& prev) {
+    if(!msaSelectionEmptyOrNull()){
+        QRect selection = msaEditor->getCurrentSelection();
+        U2Region firstReg = U2Region(selection.topLeft().rx(), selection.topRight().rx() - selection.topLeft().rx());
         editStart->setText(QString::number(firstReg.startPos + 1));
         editEnd->setText(QString::number(firstReg.endPos()));
-
-        if (currentSelection->getSelectedRegions().size() == 2) {
-            U2Region secondReg = currentSelection->getSelectedRegions().last();
-            SAFE_POINT(annotatedDnaView->getSequenceInFocus() != NULL, tr("Sequence in focus is NULL"), );
-            int seqLen = annotatedDnaView->getSequenceInFocus()->getSequenceLength();
-            bool circularSelection = (firstReg.startPos == 0 && secondReg.endPos() == seqLen)
-                    || (firstReg.endPos() == seqLen && secondReg.startPos == 0);
-            if (circularSelection) {
-                if (secondReg.startPos == 0) {
-                    editEnd->setText(QString::number(secondReg.endPos()));
-                } else {
-                    editStart->setText(QString::number(secondReg.startPos + 1));
-                }
-            }
-        }
-    }else{
-        SAFE_POINT(annotatedDnaView->getSequenceInFocus() != NULL, "No sequence in focus, with active search tab in options panel",);
+    } else {
         editStart->setText(QString::number(1));
-        editEnd->setText(QString::number(annotatedDnaView->getSequenceInFocus()->getSequenceLength()));
+        editEnd->setText(QString::number(msaEditor->getAlignmentLen()));
     }
-    */
     regionIsCorrect = true;
     boxRegion->setCurrentIndex(boxRegion->findData(RegionSelectionIndex_CustomRegion));
     checkState();

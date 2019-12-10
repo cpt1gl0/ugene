@@ -25,6 +25,7 @@
 #include <U2Core/U2Region.h>
 
 #include "../MSAEditor.h"
+#include "../MSAEditorSequenceArea.h"
 #include "FindPatternMsaWidgetSavableTab.h"
 #include "ov_msa/view_rendering/MaEditorSelection.h"
 #include "ov_sequence/find_pattern/FindPatternTask.h"
@@ -48,7 +49,6 @@ public:
     FindPatternMsaWidget(MSAEditor* msaEditor);
 
 private slots:
-    void sl_nigguz();
     void sl_onAlgorithmChanged(int);
     void sl_onRegionOptionChanged(int);
     void sl_onRegionValueEdited();
@@ -63,7 +63,7 @@ private slots:
     /** A sequence part was added, removed or replaced */
     void sl_onSequenceModified();
 
-    void sl_onSelectedRegionChanged();
+    void sl_onSelectedRegionChanged(const MaEditorSelection& current, const MaEditorSelection& prev);
     void sl_activateNewSearch(bool forcedSearch = true);
     void sl_toggleExtendedAlphabet();
     void sl_prevButtonClicked();
@@ -113,7 +113,7 @@ private:
         QMap<int, QList<U2Region> > results;
 
         int totalResultsCounter;
-        int globalPos;
+        int globalPos; //1-based position
         int row;
         int pos;
     };
@@ -134,6 +134,9 @@ private:
     QList<NamePattern> updateNamePatterns();
     void showCurrentResultAndStopProgress(const int current, const int total);
     void startProgressAnimation();
+    inline bool msaSelectionEmptyOrNull() const {
+        return msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty() || msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty();
+    }
 
     /**
      * Enables or disables the Search button depending on
