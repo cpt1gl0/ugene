@@ -222,6 +222,14 @@ private:
     static const int DEFAULT_RESULTS_NUM_LIMIT;
     static const int DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;
 
+    static const QString NEW_LINE_SYMBOL;
+    static const QString STYLESHEET_COLOR_DEFINITION;
+    static const QString STYLESHEET_DEFINITIONS_SEPARATOR;
+
+    static const int REG_EXP_MIN_RESULT_LEN;
+    static const int REG_EXP_MAX_RESULT_LEN;
+    static const int REG_EXP_MAX_RESULT_SINGLE_STEP;
+
     QList<SharedAnnotationData> findPatternResults;
     int iterPos;
     Task *searchTask;

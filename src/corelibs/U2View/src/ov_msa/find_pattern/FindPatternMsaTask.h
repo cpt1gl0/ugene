@@ -41,11 +41,12 @@ struct FindPatternMsaSettings {
 
 class FindPatternMsaTask : public Task {
 public:
+    FindPatternMsaTask();
     FindPatternMsaTask(const FindPatternMsaSettings& settings);
 
     void prepare();
-    QList<Task*> onSubTaskFinished(Task* subTask);
-    QMap<int, QList<U2Region> > getResults() const;
+    QList<Task*> onSubTaskFinished(Task* subTask) override;
+    const QMap<int, QList<U2Region> >& getResults() const;
 private:
     FindPatternMsaSettings settings;
     MultiTask* searchMultitask;

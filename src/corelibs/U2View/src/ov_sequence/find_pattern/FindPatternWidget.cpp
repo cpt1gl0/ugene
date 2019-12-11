@@ -65,14 +65,6 @@
 
 #include "FindPatternWidget.h"
 
-const QString NEW_LINE_SYMBOL = "\n";
-const QString STYLESHEET_COLOR_DEFINITION = "color: ";
-const QString STYLESHEET_DEFINITIONS_SEPARATOR = ";";
-
-const int REG_EXP_MIN_RESULT_LEN = 1;
-const int REG_EXP_MAX_RESULT_LEN = 1000;
-const int REG_EXP_MAX_RESULT_SINGLE_STEP = 20;
-
 namespace U2 {
 
 class FastaPatternsWalker {
@@ -185,7 +177,6 @@ FindPatternEventFilter::FindPatternEventFilter(QObject* parent)
 {
 }
 
-
 bool FindPatternEventFilter::eventFilter(QObject* obj, QEvent* event) {
     const QEvent::Type eventType = event->type();
     if (QEvent::KeyPress == eventType) {
@@ -211,12 +202,17 @@ bool FindPatternEventFilter::eventFilter(QObject* obj, QEvent* event) {
     return QObject::eventFilter(obj, event);
 }
 
-
-
 const static QString SHOW_OPTIONS_LINK("show_options_link");
-
 const int FindPatternWidget::DEFAULT_RESULTS_NUM_LIMIT = 100000;
 const int FindPatternWidget::DEFAULT_REGEXP_RESULT_LENGTH_LIMIT = 10000;
+
+const QString FindPatternWidget::NEW_LINE_SYMBOL = "\n";
+const QString FindPatternWidget::STYLESHEET_COLOR_DEFINITION = "color: ";
+const QString FindPatternWidget::STYLESHEET_DEFINITIONS_SEPARATOR = ";";
+
+const int FindPatternWidget::REG_EXP_MIN_RESULT_LEN = 1;
+const int FindPatternWidget::REG_EXP_MAX_RESULT_LEN = 1000;
+const int FindPatternWidget::REG_EXP_MAX_RESULT_SINGLE_STEP = 20;
 
 FindPatternWidget::FindPatternWidget(AnnotatedDNAView* _annotatedDnaView) :
     annotatedDnaView(_annotatedDnaView),

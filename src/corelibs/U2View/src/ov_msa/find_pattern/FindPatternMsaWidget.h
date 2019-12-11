@@ -52,16 +52,12 @@ private slots:
     void sl_onAlgorithmChanged(int);
     void sl_onRegionOptionChanged(int);
     void sl_onRegionValueEdited();
-    void sl_onSequenceTranslationChanged(int);
     void sl_onSearchPatternChanged();
     void sl_onMaxResultChanged(int);
-    void sl_findPatrernTaskStateChanged();
-
-    /** Another sequence has been selected */
-    void sl_onFocusChanged(MSAEditor*, MSAEditor*);
+    void sl_findPatternTaskStateChanged();
 
     /** A sequence part was added, removed or replaced */
-    void sl_onSequenceModified();
+    void sl_onMsaModified();
 
     void sl_onSelectedRegionChanged(const MaEditorSelection& current, const MaEditorSelection& prev);
     void sl_activateNewSearch(bool forcedSearch = true);
@@ -181,7 +177,7 @@ private:
     void validateCheckBoxSize(QCheckBox* checkBox, int requiredWidth);
 
     MSAEditor* msaEditor;
-    bool isAminoSequenceSelected;
+    bool isAmino;
     bool regionIsCorrect;
     int selectedAlgorithm;
     QString patternString;
@@ -203,6 +199,14 @@ private:
         
     static const int DEFAULT_RESULTS_NUM_LIMIT;
     static const int DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;
+
+    static const QString NEW_LINE_SYMBOL;
+    static const QString STYLESHEET_COLOR_DEFINITION;
+    static const QString STYLESHEET_DEFINITIONS_SEPARATOR;
+
+    static const int REG_EXP_MIN_RESULT_LEN;
+    static const int REG_EXP_MAX_RESULT_LEN;
+    static const int REG_EXP_MAX_RESULT_SINGLE_STEP;
 
     QMap<int, QList<U2Region> > findPatternResults;
     ResultIterator resultIterator;

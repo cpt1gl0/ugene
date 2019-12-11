@@ -27,6 +27,11 @@
 
 namespace U2 {
 
+FindPatternMsaTask::FindPatternMsaTask() : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
+    searchMultitask(nullptr) {
+
+}
+
 FindPatternMsaTask::FindPatternMsaTask(const FindPatternMsaSettings& _settings)
     : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
     settings(_settings) {
@@ -66,7 +71,6 @@ QList<Task*> FindPatternMsaTask::onSubTaskFinished(Task* subTask) {
             SAFE_POINT(task, "Failed to cast FindPatternListTask!", QList<Task*>());
             if (!task->getResults().isEmpty()) {
                 QList<U2Region> resultRegions;
-                int index2 = 0;
                 foreach(const SharedAnnotationData & data, task->getResults()) {
                     QList<U2Region> gappedRegionList;
                     foreach(const U2Region &region, data->getRegions().toList()) {
@@ -85,7 +89,7 @@ QList<Task*> FindPatternMsaTask::onSubTaskFinished(Task* subTask) {
     return result;
 }
 
-QMap<int, QList<U2::U2Region> > FindPatternMsaTask::getResults() const {
+const QMap<int, QList<U2::U2Region> >& FindPatternMsaTask::getResults() const {
     return resultsBySeqIndex;
 }
 

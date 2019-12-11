@@ -67,20 +67,20 @@
 #include "FindPatternMsaTask.h"
 #include "FindPatternMsaWidget.h"
 
-const QString NEW_LINE_SYMBOL = "\n";
-const QString STYLESHEET_COLOR_DEFINITION = "color: ";
-const QString STYLESHEET_DEFINITIONS_SEPARATOR = ";";
-
-const int REG_EXP_MIN_RESULT_LEN = 1;
-const int REG_EXP_MAX_RESULT_LEN = 1000;
-const int REG_EXP_MAX_RESULT_SINGLE_STEP = 20;
-
 namespace U2 {
 
 const static QString SHOW_OPTIONS_LINK("show_options_link");
 
 const int FindPatternMsaWidget::DEFAULT_RESULTS_NUM_LIMIT = 100000;
 const int FindPatternMsaWidget::DEFAULT_REGEXP_RESULT_LENGTH_LIMIT = 10000;
+
+const QString FindPatternMsaWidget::NEW_LINE_SYMBOL = "\n";
+const QString FindPatternMsaWidget::STYLESHEET_COLOR_DEFINITION = "color: ";
+const QString FindPatternMsaWidget::STYLESHEET_DEFINITIONS_SEPARATOR = ";";
+
+const int FindPatternMsaWidget::REG_EXP_MIN_RESULT_LEN = 1;
+const int FindPatternMsaWidget::REG_EXP_MAX_RESULT_LEN = 1000;
+const int FindPatternMsaWidget::REG_EXP_MAX_RESULT_SINGLE_STEP = 20;
 
 class PatternWalker {
 public:
@@ -152,7 +152,6 @@ private:
     int current;
 };
 
-
 FindPatternMsaWidget::FindPatternMsaWidget(MSAEditor* _msaEditor) :
     msaEditor(_msaEditor),
     searchTask(NULL),
@@ -171,7 +170,7 @@ FindPatternMsaWidget::FindPatternMsaWidget(MSAEditor* _msaEditor) :
     setContentsMargins(0, 0, 0, 0);
 
     const DNAAlphabet* alphabet = msaEditor->getMaObject()->getAlphabet();
-    isAminoSequenceSelected = alphabet->isAmino();
+    isAmino = alphabet->isAmino();
 
     initLayout();
     connectSlots();
@@ -219,8 +218,24 @@ FindPatternMsaWidget::ResultIterator::ResultIterator(const QMap<int, QList<U2Reg
     }
 }
 
+U2::U2Region FindPatternMsaWidget::ResultIterator::currentResult() const {
+    return results[row][pos];
+}
+
+int FindPatternMsaWidget::ResultIterator::getGlobalPos() const {
+    return globalPos;
+}
+
+int FindPatternMsaWidget::ResultIterator::getTotalCount() const {
+    return totalResultsCounter;
+}
+
+int FindPatternMsaWidget::ResultIterator::getRow() const {
+    return row;
+}
+
 bool FindPatternMsaWidget::ResultIterator::goNextResult() {
-    if (!isNextResult()) {
+    if (!hasNextResult()) {
         return false;
     }
     pos++;
@@ -233,7 +248,7 @@ bool FindPatternMsaWidget::ResultIterator::goNextResult() {
 }
 
 bool FindPatternMsaWidget::ResultIterator::goPrevResult() {
-    if (!isPrevResult()) {
+    if (!hasNextResult()) {
         return false;
     }
     if (pos == 0) {
@@ -290,7 +305,7 @@ void FindPatternMsaWidget::initLayout() {
 void FindPatternMsaWidget::initAlgorithmLayout()
 {
     boxAlgorithm->addItem(tr("Exact"), FindAlgorithmPatternSettings_Exact);
-    if(!isAminoSequenceSelected) {
+    if(!isAmino) {
         boxAlgorithm->addItem(tr("InsDel"), FindAlgorithmPatternSettings_InsDel);
         boxAlgorithm->addItem(tr("Substitute"), FindAlgorithmPatternSettings_Subst);
     }
@@ -386,12 +401,7 @@ void FindPatternMsaWidget::connectSlots()
     connect(editEnd, SIGNAL(textChanged(QString)), SLOT(sl_onRegionValueEdited()));
     connect(boxMaxResult, SIGNAL(valueChanged(int)), SLOT(sl_onMaxResultChanged(int)));
     connect(removeOverlapsBox, SIGNAL(stateChanged(int)), SLOT(sl_activateNewSearch()));
-
-    // A sequence has been selected in the Sequence View
-    /*
-    connect(annotatedDnaView, SIGNAL(si_focusChanged(ADVSequenceWidget*, ADVSequenceWidget*)),
-        this, SLOT(sl_onFocusChanged(ADVSequenceWidget*, ADVSequenceWidget*)));
-    */
+  
     // A sequence has been modified (a subsequence added, removed, etc.)
     /*
     connect(annotatedDnaView->getSequenceInFocus()->getSequenceObject(), SIGNAL(si_sequenceChanged()),
@@ -485,37 +495,6 @@ void FindPatternMsaWidget::sl_onRegionValueEdited()
         sl_activateNewSearch();
     }
 }
-
-
-void FindPatternMsaWidget::sl_onFocusChanged(
-    MSAEditor* /* prevWidget */, MSAEditor* currentWidget)
-{
-    Q_UNUSED(currentWidget);
-    /*
-    ADVSequenceObjectContext* activeContext = annotatedDnaView->getSequenceInFocus();
-    if (activeContext != 0) {
-        const DNAAlphabet* alphabet = activeContext->getAlphabet();
-        isAminoSequenceSelected = alphabet->isAmino();
-        updateLayout();
-
-        // Update region
-        setRegionToWholeSequence();
-        doNotHighlightBackground(editStart);
-        doNotHighlightBackground(editEnd);
-
-        // Update available annotations table objects, etc.
-//         if(boxRegion->itemData(boxRegion->currentIndex()).toInt() == RegionSelectionIndex_CurrentSelectedRegion){
-//             disconnect(currentSelection, SIGNAL(si_selectionChanged(LRegionsSelection* , const QVector<U2Region>&, const QVector<U2Region>&)),
-//                 this, SLOT(sl_onSelectedRegionChanged()) );
-//             currentSelection = annotatedDnaView->getSequenceInFocus()->getSequenceSelection();
-//             connect(currentSelection, SIGNAL(si_selectionChanged(LRegionsSelection* , const QVector<U2Region>&, const QVector<U2Region>&)),
-//                 this, SLOT(sl_onSelectedRegionChanged()) );
-//              sl_onSelectedRegionChanged();
-//         }
-    }
-*/
-}
-
 
 void FindPatternMsaWidget::updateLayout()
 {
@@ -703,14 +682,16 @@ void FindPatternMsaWidget::sl_onSearchPatternChanged()
 }
 
 void FindPatternMsaWidget::sl_onMaxResultChanged(int newMaxResult) {
-    /*
-    bool limitResult = !findPatternResults.isEmpty() && newMaxResult < findPatternResults.size();
-    bool widenResult = newMaxResult > previousMaxResult && findPatternResults.size() == previousMaxResult;
+    int resultsSize = 0;
+    foreach(const QList<U2Region> & regions, findPatternResults) {
+        resultsSize += regions.size();
+    }
+    bool limitResult = !findPatternResults.isEmpty() && newMaxResult < resultsSize;
+    bool widenResult = newMaxResult > previousMaxResult && resultsSize == previousMaxResult;
     bool prevSearchIsNotComplete = findPatternResults.isEmpty() && searchTask != NULL;
     if (limitResult || widenResult || prevSearchIsNotComplete) {
         sl_activateNewSearch();
     }
-    */
 }
 
 void FindPatternMsaWidget::setCorrectPatternsString() {
@@ -778,12 +759,7 @@ bool FindPatternMsaWidget::verifyPatternAlphabet()
     return result;
 }
 
-void FindPatternMsaWidget::sl_onSequenceTranslationChanged(int /* index */)
-{
-    verifyPatternAlphabet();
-}
-
-void FindPatternMsaWidget::sl_onSequenceModified()
+void FindPatternMsaWidget::sl_onMsaModified()
 {
     setRegionToWholeSequence();
     checkState();
@@ -848,7 +824,7 @@ void FindPatternMsaWidget::checkState()
 
 void FindPatternMsaWidget::enableDisableMatchSpin()
 {
-    if (textPattern->toPlainText().isEmpty() || isAminoSequenceSelected) {
+    if (textPattern->toPlainText().isEmpty() || isAmino) {
         spinMatch->setEnabled(false);
     }
     else {
@@ -903,7 +879,7 @@ QList <QPair<QString, QString> > FindPatternMsaWidget::getPatternsFromTextPatter
     return result;
 }
 
-#define FIND_PATTER_LAST_DIR "Find_pattern_last_dir"
+#define FIND_PATTER_LAST_DIR "Find_msa_pattern_last_dir"
 
 void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &patterns) {
     CHECK(!patterns.isEmpty(), );
@@ -948,12 +924,12 @@ void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &pattern
     prevPushButton->setDisabled(true);
 
     searchTask = new FindPatternMsaTask(settings);
-    connect(searchTask, SIGNAL(si_stateChanged()), SLOT(sl_findPatrernTaskStateChanged()));
+    connect(searchTask, SIGNAL(si_stateChanged()), SLOT(sl_findPatternTaskStateChanged()));
     startProgressAnimation();
     AppContext::getTaskScheduler()->registerTopLevelTask(searchTask);
 }
 
-void FindPatternMsaWidget::sl_findPatrernTaskStateChanged() {
+void FindPatternMsaWidget::sl_findPatternTaskStateChanged() {
     FindPatternMsaTask *findTask = static_cast<FindPatternMsaTask*>(sender());
     CHECK(NULL != findTask, );
     if (findTask != searchTask){
