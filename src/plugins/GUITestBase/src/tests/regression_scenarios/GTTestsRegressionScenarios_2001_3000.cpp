@@ -4560,7 +4560,7 @@ GUI_TEST_CLASS_DEFINITION( test_2662 ){
 //    Actual: vcfTools executible file is /usr/bin/perl
     GTUtilsDashboard::click(os, GTUtilsDashboard::findTreeElement(os, "vcfutils run"));
     //GTUtilsDashboard::click(os, GTUtilsDashboard::findElement(os, "vcfutils run", "*", true));
-  
+
 #ifdef Q_OS_WIN
     GTUtilsDashboard::findElement(os, "samtools-0.1.19\\vcfutils.pl", "SPAN");
 #else

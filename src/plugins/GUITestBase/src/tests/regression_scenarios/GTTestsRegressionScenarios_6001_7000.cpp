@@ -2011,7 +2011,7 @@ GUI_TEST_CLASS_DEFINITION(test_6298) {
     // 2. Press "Join sequences into alignment..." radio button
     // 3. Press "OK" button
     // 4. Expected state: the alignment alphabet is "Standard amino acid"
-    
+
 #ifdef Q_OS_MAC
     //hack for mac
     MainWindow *mw = AppContext::getMainWindow();
@@ -2883,7 +2883,7 @@ GUI_TEST_CLASS_DEFINITION(test_6541_2) {
 //  Click "Realign sequence(s) to other sequences".
 //  Expected result : sequences realigned.
     GTWidget::click(os, realignButton);
-    QAbstractButton* undoButton = GTAction::button(os, "msa_action_undo"); 
+    QAbstractButton* undoButton = GTAction::button(os, "msa_action_undo");
     GTUtilsTaskTreeView::waitTaskFinished(os);
     CHECK_SET_ERR(undoButton->isEnabled(), "'Undo' button is unexpectably disabled");
 }
@@ -2925,36 +2925,36 @@ GUI_TEST_CLASS_DEFINITION(test_6541_3) {
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6544){
-    
-    // 1. Open a DNA sequence in the SV.    
+
+    // 1. Open a DNA sequence in the SV.
     GTFileDialog::openFile(os, dataDir + "/samples/FASTA", "human_T1.fa");
     GTUtilsTaskTreeView::waitTaskFinished(os);
-    
+
     // 2. Open the "Search in Sequence" tab on the options panel.
     GTKeyboardDriver::keyClick( 'f', Qt::ControlModifier);
     GTGlobals::sleep();
-    
+
     // 3. Input a pattern that contains a character of the extended DNA alphabet, e.g. "ACWT".
-    
+
     QWidget *patternInputLine = QApplication::focusWidget();
     CHECK_SET_ERR(NULL != patternInputLine && patternInputLine->objectName() == "textPattern", "Focus is not on FindPattern widget");
 
     GTKeyboardDriver::keySequence("ACWT");
-    GTGlobals::sleep(1000);    
-    
+    GTGlobals::sleep(1000);
+
     // 4. Set algorithm to "Substitute" in the "Search algorithm" group.
     GTUtilsOptionPanelSequenceView::setAlgorithm(os, "Substitute");
-    
+
     // 5. Expected/current result: the search field background is red.
     QTextEdit* editPatterns = GTWidget::findExactWidget<QTextEdit*>(os, "textPattern");
     QString style0 = editPatterns->styleSheet();
     CHECK_SET_ERR(style0 == "background-color: rgb(255, 152, 142);", "unexpected styleSheet: " + style0);
-    
+
     // 6. Make the "Search with ambiguous bases" option checked.
-    
+
     GTUtilsOptionPanelSequenceView::setSearchWithAmbiguousBases(os);
     GTGlobals::sleep(200);
-    
+
     // 7. Expected result: the search field should have white background.
     QString style1 = editPatterns->styleSheet();
     CHECK_SET_ERR(style1 == "background-color: white;", "unexpected styleSheet: " + style1);
@@ -3236,17 +3236,17 @@ GUI_TEST_CLASS_DEFINITION(test_6546_11){
 }
 
 GUI_TEST_CLASS_DEFINITION(test_6564){
-    
+
     // 1. Open general/_common_data/scenarios/msal/ma2_gap_col.aln.
     GTFileDialog::openFile(os, testDir + "_common_data/scenarios/msa/ma2_gap_col.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
-    
+
     // 2. Enable "Collapsing mode". As result 2 names in the name list are hidden.
     GTWidget::click(os, GTToolbar::getWidgetForActionName(os, GTToolbar::getToolbar(os, "mwtoolbar_activemdi"), "Enable collapsing"));
-    
+
     // 3. Try to select 2 last names: "Podisma_sapporensis" or "Hetrodes_pupus_EF540832".
     // 4. Expected State: name is selected
-    
+
     GTUtilsMsaEditor::clickSequenceName(os, "Podisma_sapporensis");
     GTKeyboardDriver::keyPress(Qt::Key_Shift);
     GTUtilsMsaEditor::clickSequenceName(os, "Hetrodes_pupus_EF540832");
