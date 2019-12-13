@@ -208,10 +208,10 @@ void FindPatternMsaWidget::showCurrentResultAndStopProgress(const int current, c
 }
 
 FindPatternMsaWidget::ResultIterator::ResultIterator()
-    : results(QMap<int, QList<U2Region> > ()), totalResultsCounter(0), globalPos(0), row(0), pos(0) {}
+    : results(QMap<int, QList<U2Region> > ()), totalResultsCounter(0), globalPos(0) {}
 
 FindPatternMsaWidget::ResultIterator::ResultIterator(const QMap<int, QList<U2Region> >& results_) 
-    : results(results_), totalResultsCounter(0), globalPos(1), row(results.firstKey()), pos(0)
+    : results(results_), totalResultsCounter(0), globalPos(1), rowsIt(results.constBegin()), regionsIt(rowsIt->constBegin())
 {
     foreach(int key, results.keys()) {
         totalResultsCounter += results[key].size();
@@ -219,7 +219,7 @@ FindPatternMsaWidget::ResultIterator::ResultIterator(const QMap<int, QList<U2Reg
 }
 
 U2::U2Region FindPatternMsaWidget::ResultIterator::currentResult() const {
-    return results[row][pos];
+    return *regionsIt;
 }
 
 int FindPatternMsaWidget::ResultIterator::getGlobalPos() const {
@@ -231,54 +231,42 @@ int FindPatternMsaWidget::ResultIterator::getTotalCount() const {
 }
 
 int FindPatternMsaWidget::ResultIterator::getRow() const {
-    return row;
+    return rowsIt.key();
 }
 
-bool FindPatternMsaWidget::ResultIterator::goNextResult() {
-    if (!hasNextResult()) {
-        return false;
-    }
-    pos++;
+void FindPatternMsaWidget::ResultIterator::goBegin() {
+    globalPos = 1;
+    rowsIt = results.constBegin();
+    regionsIt = rowsIt->constBegin();
+}
+
+void FindPatternMsaWidget::ResultIterator::goEnd() {
+    globalPos = totalResultsCounter;
+    rowsIt = results.constEnd() - 1;
+    regionsIt = rowsIt->constEnd() - 1;
+}
+
+void FindPatternMsaWidget::ResultIterator::goNextResult() {
     globalPos++;
-    if (pos == results[row].size()) {
-        pos = 0;
-        row = findNextRow();
+    regionsIt++;
+    if (globalPos == totalResultsCounter + 1) {
+        goBegin();
+    } else if(regionsIt == rowsIt->constEnd()){
+        rowsIt++;
+        regionsIt = rowsIt->constBegin();
     }
-    return true;
 }
 
-bool FindPatternMsaWidget::ResultIterator::goPrevResult() {
-    if (!hasNextResult()) {
-        return false;
-    }
-    if (pos == 0) {
-        row = findPrevRow();
-        pos = results[row].size() - 1;
-    } else {
-        pos--;
-    }
+void FindPatternMsaWidget::ResultIterator::goPrevResult() {
     globalPos--;
-    return true;
-}
-
-int FindPatternMsaWidget::ResultIterator::findNextRow() const {
-    foreach(int key, results.keys()) {
-        if (key > row) {
-            return key;
-        }
+    if (globalPos == 0) {
+        goEnd();
+        return;
+    } else if (regionsIt == rowsIt->constBegin()) {
+        rowsIt--;
+        regionsIt = rowsIt->constEnd();
     }
-    return -1;
-}
-
-int FindPatternMsaWidget::ResultIterator::findPrevRow() const {
-    QList<int> keyList(results.keys());
-    std::reverse(keyList.begin(), keyList.end());
-    foreach(int key, keyList) {
-        if (key < row) {
-            return key;
-        }
-    }
-    return -1;
+    regionsIt--;
 }
 
 void FindPatternMsaWidget::initLayout() {
@@ -1100,16 +1088,12 @@ QList<NamePattern> FindPatternMsaWidget::updateNamePatterns() {
 }
 
 void FindPatternMsaWidget::sl_prevButtonClicked() {
-    if (!resultIterator.goPrevResult()) {
-        resultIterator.goEnd();
-    }
+    resultIterator.goPrevResult();
     showCurrentResult();
 }
 
 void FindPatternMsaWidget::sl_nextButtonClicked() {
-    if (!resultIterator.goNextResult()) {
-        resultIterator.goBegin();
-    }
+    resultIterator.goNextResult();
     showCurrentResult();
 }
 

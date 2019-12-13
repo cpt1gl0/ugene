@@ -29,7 +29,7 @@
 namespace U2 {
 
 class MultipleSequenceAlignmentObject;
-class MultiTask;
+class FindPatternListTask;
 
 struct FindPatternMsaSettings {
     MultipleSequenceAlignmentObject* msaObj;
@@ -47,9 +47,15 @@ public:
     void prepare();
     QList<Task*> onSubTaskFinished(Task* subTask) override;
     const QMap<int, QList<U2Region> >& getResults() const;
+
 private:
+    void getResultFromTask();
+    void createSearchTaskForCurrentSequence();
+
     FindPatternMsaSettings settings;
-    MultiTask* searchMultitask;
+    int currentSequenceIndex;
+    FindPatternListTask* searchInSingleSequenceTask;
+    int totalResultsCounter;
 
     QMap<int, QList<U2Region> > resultsBySeqIndex;
 };

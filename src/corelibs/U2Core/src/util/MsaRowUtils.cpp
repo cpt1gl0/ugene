@@ -125,7 +125,7 @@ U2Region MsaRowUtils::getGappedRegion(const U2MsaRowGapModel& gaps, const U2Regi
     foreach(const U2MsaGap & gap, gaps) {
         if (gap.offset < ungappedRegion.startPos) {
             startGapsLength += gap.gap;
-        } else if (gap.offset < ungappedRegion.endPos()) {
+        } else if(gap.offset < ungappedRegion.endPos() + startGapsLength + innerGapsLength) {
             innerGapsLength += gap.gap;
         } else {
             break;

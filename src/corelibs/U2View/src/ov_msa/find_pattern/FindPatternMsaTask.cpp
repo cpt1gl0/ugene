@@ -23,22 +23,30 @@
 #include "../../ov_sequence/find_pattern/FindPatternTask.h"
 
 #include <U2Core/MultipleSequenceAlignmentObject.h>
-#include <U2Core/MultiTask.h>
 
 namespace U2 {
 
 FindPatternMsaTask::FindPatternMsaTask() : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
-    searchMultitask(nullptr) {
+    currentSequenceIndex(0),
+    searchInSingleSequenceTask(nullptr),
+    totalResultsCounter(0) {
 
 }
 
 FindPatternMsaTask::FindPatternMsaTask(const FindPatternMsaSettings& _settings)
     : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
-    settings(_settings) {
+    settings(_settings),
+    currentSequenceIndex(0),
+    totalResultsCounter(0),
+    searchInSingleSequenceTask(nullptr) {
 }
 
 void FindPatternMsaTask::prepare() {
-    QList<Task*> tasks;
+    createSearchTaskForCurrentSequence();
+    addSubTask(searchInSingleSequenceTask);
+}
+
+void FindPatternMsaTask::createSearchTaskForCurrentSequence() {
     FindAlgorithmTaskSettings algoSettings;
     algoSettings.searchIsCircular = false;
     algoSettings.strand = FindAlgorithmStrand_Direct;
@@ -46,47 +54,49 @@ void FindPatternMsaTask::prepare() {
     algoSettings.useAmbiguousBases = false;
     algoSettings.patternSettings = settings.findSettings.patternSettings;
     algoSettings.sequenceAlphabet = settings.msaObj->getAlphabet();
-    for (int i = 0; i < settings.msaObj->getNumRows(); i++) {
-        QByteArray seq = settings.msaObj->getRow(i)->getUngeppedDnaSequence().constSequence();
-        FindAlgorithmTaskSettings currentSettings = algoSettings;
-        currentSettings.sequence = seq;
-        currentSettings.searchRegion = U2Region(0, seq.length());
-        tasks.append(new FindPatternListTask(currentSettings, settings.patterns, settings.removeOverlaps , settings.matchValue));
-    }
-    searchMultitask = new MultiTask(tr("Search in Multiple Sequence Alignment multitask"), tasks, false, TaskFlags_NR_FOSE_COSC);
-    addSubTask(searchMultitask);
+    QByteArray seq = settings.msaObj->getRow(currentSequenceIndex)->getUngeppedDnaSequence().constSequence();
+    FindAlgorithmTaskSettings currentSettings = algoSettings;
+    currentSettings.sequence = seq;
+    currentSettings.searchRegion = settings.findSettings.searchRegion;
+    searchInSingleSequenceTask = new FindPatternListTask(currentSettings, settings.patterns, settings.removeOverlaps, settings.matchValue);
+    return;
 }
 
 QList<Task*> FindPatternMsaTask::onSubTaskFinished(Task* subTask) {
     QList<Task*> result;
-    if (subTask->hasError() && subTask == searchMultitask) {
+    if (subTask->hasError() && subTask == searchInSingleSequenceTask) {
         stateInfo.setError(subTask->getError());
         return result;
     }
 
-    if (subTask == searchMultitask) {
-        int index = 0;
-        foreach(Task * searchTask, searchMultitask->getTasks()) {
-            FindPatternListTask* task = qobject_cast<FindPatternListTask*>(searchTask);
-            SAFE_POINT(task, "Failed to cast FindPatternListTask!", QList<Task*>());
-            if (!task->getResults().isEmpty()) {
-                QList<U2Region> resultRegions;
-                foreach(const SharedAnnotationData & data, task->getResults()) {
-                    QList<U2Region> gappedRegionList;
-                    foreach(const U2Region &region, data->getRegions().toList()) {
-                        resultRegions.append(settings.msaObj->getMultipleAlignment()->getRow(index).data()->getGapped(region));
-                    }
-                    resultRegions.append(gappedRegionList);
-                }
-                if (settings.findSettings.patternSettings == FindAlgorithmPatternSettings_RegExp) { //Other algos always return sorted results
-                    qSort(resultRegions.begin(), resultRegions.end());
-                }
-                resultsBySeqIndex.insert(index, resultRegions);
-            }
-            index++;
+    if (subTask == searchInSingleSequenceTask) {
+        getResultFromTask();
+        if (currentSequenceIndex < settings.msaObj->getNumRows() && totalResultsCounter < settings.findSettings.maxResult2Find) {
+            createSearchTaskForCurrentSequence();
+            result.append(searchInSingleSequenceTask);
         }
     }
+
     return result;
+}
+
+void FindPatternMsaTask::getResultFromTask() {
+    if (!searchInSingleSequenceTask->getResults().isEmpty()) {
+        QList<U2Region> resultRegions;
+        foreach(const SharedAnnotationData & data, searchInSingleSequenceTask->getResults()) {
+            if (totalResultsCounter >= settings.findSettings.maxResult2Find) {
+                break;
+            }
+            QList<U2Region> gappedRegionList;
+            resultRegions.append(settings.msaObj->getMultipleAlignment()->getRow(currentSequenceIndex).data()->getGapped(data->getRegions().first()));
+            totalResultsCounter++;
+        }
+        if (settings.findSettings.patternSettings == FindAlgorithmPatternSettings_RegExp) { //Other algos always return sorted results
+            qSort(resultRegions.begin(), resultRegions.end());
+        }
+        resultsBySeqIndex.insert(currentSequenceIndex, resultRegions);
+    }
+    currentSequenceIndex++;
 }
 
 const QMap<int, QList<U2::U2Region> >& FindPatternMsaTask::getResults() const {

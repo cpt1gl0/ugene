@@ -74,44 +74,23 @@ private:
         ResultIterator();
         ResultIterator(const QMap<int, QList<U2Region> >& results);
 
-        inline U2Region currentResult() const { 
-            return results[row][pos];
-        }
-
-        inline int getGlobalPos() const { 
-            return globalPos; 
-        }
-        inline int getTotalCount() const { 
-            return totalResultsCounter; 
-        }
-        inline int getRow() const { 
-            return row; 
-        }
-        inline void goBegin() {
-            globalPos = 1;
-            row = results.firstKey();
-            pos = 0;
-        }
-        inline void goEnd() {
-            globalPos = totalResultsCounter;
-            row = results.lastKey();
-            pos = results[row].size() - 1;
-        }
-        bool goNextResult();
-        bool goPrevResult();
+        U2Region currentResult() const;
+        int getGlobalPos() const;
+        int getTotalCount() const;
+        int getRow() const;
+        void goBegin();
+        void goEnd();
+        void goNextResult();
+        void goPrevResult();
     
     private:
-        inline bool isNextResult() const { return globalPos < totalResultsCounter; }
-        inline bool isPrevResult() const { return globalPos > 1; }
-        int findNextRow() const; //return -1 if not found
-        int findPrevRow() const; //return -1 if not found
-
         QMap<int, QList<U2Region> > results;
 
         int totalResultsCounter;
         int globalPos; //1-based position
-        int row;
-        int pos;
+        
+        QMap<int, QList<U2Region> >::const_iterator rowsIt;
+        QList<U2Region>::const_iterator regionsIt;
     };
 
     void initLayout();
