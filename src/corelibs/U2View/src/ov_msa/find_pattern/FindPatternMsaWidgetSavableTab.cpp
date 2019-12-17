@@ -29,7 +29,7 @@ namespace U2 {
 FindPatternMsaWidgetSavableTab::FindPatternMsaWidgetSavableTab(QWidget *wrappedWidget, MWMDIWindow *contextWindow)
     : U2SavableWidget(wrappedWidget, contextWindow)
 {
-    SAFE_POINT(NULL != qobject_cast<FindPatternMsaWidget *>(wrappedWidget), "Invalid widget provided", );
+    SAFE_POINT(nullptr != qobject_cast<FindPatternMsaWidget *>(wrappedWidget), "Invalid widget provided", );
 }
 
 FindPatternMsaWidgetSavableTab::~FindPatternMsaWidgetSavableTab() {
@@ -43,9 +43,9 @@ void FindPatternMsaWidgetSavableTab::setChildValue(const QString &childId, const
     if (regionWidgetIds.contains(childId)){
         bool ok = false;
         int intVal = value.toInt(&ok);
-        FindPatternWidget *parentWidget = qobject_cast<FindPatternWidget*>(wrappedWidget);
-        SAFE_POINT(parentWidget != NULL, "Wrong casting", )
-        int multipleAlignmentLength = parentWidget->getTargetSequnceLength();
+        FindPatternMsaWidget*parentWidget = qobject_cast<FindPatternMsaWidget*>(wrappedWidget);
+        SAFE_POINT(parentWidget != nullptr, "Wrong casting", )
+        int multipleAlignmentLength = parentWidget->getTargetMsaLength();
         SAFE_POINT(ok, "Invalid conversion to int", );
         CHECK(regionWidgetIds.size() == 2, );
         if(intVal > multipleAlignmentLength) {
@@ -63,7 +63,7 @@ void FindPatternMsaWidgetSavableTab::setRegionWidgetIds(const QStringList &s) {
     /*
     First item should be start position, second - end
     */
-    //regionWidgetIds.append(s);
+    regionWidgetIds.append(s);
 }
 
 }

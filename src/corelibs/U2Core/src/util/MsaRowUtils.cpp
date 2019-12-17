@@ -119,21 +119,40 @@ qint64 MsaRowUtils::getUngappedPosition(const U2MsaRowGapModel &gaps, qint64 dat
     return position - gapsLength;
 }
 
-U2Region MsaRowUtils::getGappedRegion(const U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
-    int startGapsLength = 0;
-    int innerGapsLength = 0;
+U2Region MsaRowUtils::getGappedRegion(U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
+    U2Region result(ungappedRegion);
+    foreach(const U2MsaGap & gap, gaps) { 
+        if (gap.offset + gap.gap <= ungappedRegion.endPos()) { //leading gaps
+            result.startPos += gap.gap;
+        } else if (gap.offset > ungappedRegion.startPos) { //inner gaps
+            result.length += gap.gap;
+        } else { //trailing
+            break;
+        }
+    }
+    return result;
+}
+
+U2Region MsaRowUtils::getUngappedRegionFromSelection(const U2MsaRowGapModel& gaps, const U2Region& selection) {
+    int shiftStartPos = 0;
+    int decreaseLength = 0;
     foreach(const U2MsaGap & gap, gaps) {
-        if (gap.offset < ungappedRegion.startPos) {
-            startGapsLength += gap.gap;
-        } else if(gap.offset < ungappedRegion.endPos() + startGapsLength + innerGapsLength) {
-            innerGapsLength += gap.gap;
+        if (gap.endPos() < selection.startPos) {
+            shiftStartPos += gap.gap;
+        } else if (gap.offset < selection.startPos && gap.offset + gap.gap >= selection.startPos) {
+            shiftStartPos = selection.startPos - gap.offset;
+            decreaseLength += gap.offset + gap.gap - selection.startPos;
+        } else if (gap.offset < selection.endPos() && gap.offset >= selection.startPos) {
+            decreaseLength += gap.gap;
+        } else if (gap.offset <= selection.startPos && gap.offset + gap.gap >= selection.endPos()) {
+            return U2Region(0, 0);
         } else {
             break;
         }
     }
-    U2Region result(ungappedRegion);
-    result.startPos += startGapsLength;
-    result.length += innerGapsLength;
+    U2Region result(selection.startPos - shiftStartPos, selection.length - decreaseLength);
+    SAFE_POINT(result.startPos >= 0, "Error with calculation ungapped region", U2Region(0, 0));
+    SAFE_POINT(result.length > 0, "Error with calculation ungapped region", U2Region(0, 0));
     return result;
 }
 

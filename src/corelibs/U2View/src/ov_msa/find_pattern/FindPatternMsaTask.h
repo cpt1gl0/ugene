@@ -32,6 +32,8 @@ class MultipleSequenceAlignmentObject;
 class FindPatternListTask;
 
 struct FindPatternMsaSettings {
+    FindPatternMsaSettings();
+
     MultipleSequenceAlignmentObject* msaObj;
     QList<NamePattern> patterns;
     bool removeOverlaps;
@@ -44,7 +46,7 @@ public:
     FindPatternMsaTask();
     FindPatternMsaTask(const FindPatternMsaSettings& settings);
 
-    void prepare();
+    void prepare() override;
     QList<Task*> onSubTaskFinished(Task* subTask) override;
     const QMap<int, QList<U2Region> >& getResults() const;
 

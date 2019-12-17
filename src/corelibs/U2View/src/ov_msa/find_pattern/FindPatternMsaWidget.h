@@ -48,6 +48,8 @@ class FindPatternMsaWidget : public QWidget, private Ui_FindPatternMsaForm
 public:
     FindPatternMsaWidget(MSAEditor* msaEditor);
 
+    int getTargetMsaLength() const;
+
 private slots:
     void sl_onAlgorithmChanged(int);
     void sl_onRegionOptionChanged(int);

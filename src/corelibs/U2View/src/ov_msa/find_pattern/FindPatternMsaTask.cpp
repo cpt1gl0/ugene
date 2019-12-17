@@ -26,6 +26,13 @@
 
 namespace U2 {
 
+FindPatternMsaSettings::FindPatternMsaSettings()
+    : msaObj(nullptr),
+    removeOverlaps(false),
+    matchValue(0) {
+
+}
+
 FindPatternMsaTask::FindPatternMsaTask() : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
     currentSequenceIndex(0),
     searchInSingleSequenceTask(nullptr),
@@ -54,11 +61,13 @@ void FindPatternMsaTask::createSearchTaskForCurrentSequence() {
     algoSettings.useAmbiguousBases = false;
     algoSettings.patternSettings = settings.findSettings.patternSettings;
     algoSettings.sequenceAlphabet = settings.msaObj->getAlphabet();
+    algoSettings.searchIsCircular = false;
     QByteArray seq = settings.msaObj->getRow(currentSequenceIndex)->getUngeppedDnaSequence().constSequence();
     FindAlgorithmTaskSettings currentSettings = algoSettings;
     currentSettings.sequence = seq;
-    currentSettings.searchRegion = settings.findSettings.searchRegion;
+    currentSettings.searchRegion = settings.msaObj->getRow(currentSequenceIndex)->getUngappedRegionFromSelection(settings.findSettings.searchRegion);
     searchInSingleSequenceTask = new FindPatternListTask(currentSettings, settings.patterns, settings.removeOverlaps, settings.matchValue);
+    //TODO: add condition to skip task creation for empty regions
     return;
 }
 

@@ -126,8 +126,7 @@ public:
         QChar c(patternsString[current]);
         if (c.isLetter()) {
             return c.isUpper();
-        }
-        else {
+        } else {
             return ('\n' == c);
         }
     }
@@ -154,7 +153,7 @@ private:
 
 FindPatternMsaWidget::FindPatternMsaWidget(MSAEditor* _msaEditor) :
     msaEditor(_msaEditor),
-    searchTask(NULL),
+    searchTask(nullptr),
     previousMaxResult(-1),
     savableWidget(this, GObjectViewUtils::findViewByName(msaEditor->getName()))
 {
@@ -197,6 +196,10 @@ FindPatternMsaWidget::FindPatternMsaWidget(MSAEditor* _msaEditor) :
     setUpTabOrder();
     previousMaxResult = boxMaxResult->value();
     U2WidgetStateStorage::restoreWidgetState(savableWidget);
+}
+
+int FindPatternMsaWidget::getTargetMsaLength() const {
+    return msaEditor->getAlignmentLen();
 }
 
 void FindPatternMsaWidget::showCurrentResultAndStopProgress(const int current, const int total) {
@@ -426,7 +429,7 @@ void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
         regionIsCorrect = true;
         checkState();
         setRegionToWholeSequence();
-    }else if (boxRegion->itemData(index).toInt() == RegionSelectionIndex_CustomRegion) {
+    } else if (boxRegion->itemData(index).toInt() == RegionSelectionIndex_CustomRegion) {
         editStart->show();
         lblStartEndConnection->show();
         editEnd->show();
@@ -435,7 +438,7 @@ void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
 
         getCompleteSearchRegion(regionIsCorrect, msaEditor->getAlignmentLen());
         checkState();
-    }else if(boxRegion->itemData(index).toInt() == RegionSelectionIndex_CurrentSelectedRegion) {
+    } else if(boxRegion->itemData(index).toInt() == RegionSelectionIndex_CurrentSelectedRegion) {
         connect(msaEditor->getUI()->getSequenceArea(), SIGNAL(si_selectionChanged(const MaEditorSelection &, const MaEditorSelection &)),
             this, SLOT(sl_onSelectedRegionChanged(const MaEditorSelection &, const MaEditorSelection &)));
         editStart->show();
@@ -453,8 +456,7 @@ void FindPatternMsaWidget::sl_onRegionValueEdited()
     if (editStart->text().isEmpty()) {
         TextUtils::highlightBackground(editStart);
         regionIsCorrect = false;
-    }
-    else if (editEnd->text().isEmpty()) {
+    } else if (editEnd->text().isEmpty()) {
         TextUtils::highlightBackground(editEnd);
         regionIsCorrect = false;
     } else {
@@ -500,16 +502,14 @@ void FindPatternMsaWidget::updateLayout()
         lblMatch->show();
         spinMatch->show();
         QWidget::setTabOrder(boxAlgorithm, spinMatch);
-    }
-    else if (selectedAlgorithm == FindAlgorithmPatternSettings_Subst) {
+    } else if (selectedAlgorithm == FindAlgorithmPatternSettings_Subst) {
         useMaxResultLenContainer->hide();
         boxMaxResultLen->hide();
         QWidget::setTabOrder(boxAlgorithm, spinMatch);
         enableDisableMatchSpin();
         lblMatch->show();
         spinMatch->show();
-    }
-    else if (selectedAlgorithm == FindAlgorithmPatternSettings_RegExp) {
+    } else if (selectedAlgorithm == FindAlgorithmPatternSettings_RegExp) {
         useMaxResultLenContainer->show();
         boxMaxResultLen->show();
         spinMatch->hide();
@@ -524,8 +524,7 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
         if (!messageFlags.contains(messageFlag)) {
             messageFlags.append(messageFlag);
         }
-    }
-    else {
+    } else {
         messageFlags.removeAll(messageFlag);
     }
 
@@ -635,8 +634,7 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
             }
         }
         lblErrorMessage->setText(text);
-    }
-    else {
+    } else {
         lblErrorMessage->setText("");
     }
     bool hasNoErrors = messageFlags.isEmpty() || (messageFlags.size() == 1 && messageFlags.contains(UseMultiplePatternsTip));
@@ -676,7 +674,7 @@ void FindPatternMsaWidget::sl_onMaxResultChanged(int newMaxResult) {
     }
     bool limitResult = !findPatternResults.isEmpty() && newMaxResult < resultsSize;
     bool widenResult = newMaxResult > previousMaxResult && resultsSize == previousMaxResult;
-    bool prevSearchIsNotComplete = findPatternResults.isEmpty() && searchTask != NULL;
+    bool prevSearchIsNotComplete = findPatternResults.isEmpty() && searchTask != nullptr;
     if (limitResult || widenResult || prevSearchIsNotComplete) {
         sl_activateNewSearch();
     }
@@ -697,8 +695,7 @@ void FindPatternMsaWidget::setCorrectPatternsString() {
                 if (!character.isUpper()) {
                     walker.setCurrent(character.toUpper().toLatin1());
                 }
-            }
-            else {
+            } else {
                 if ('\n' != character) {
                     walker.removeCurrent();
                 }
@@ -726,8 +723,7 @@ bool FindPatternMsaWidget::verifyPatternAlphabet()
     bool alphabetIsOk = checkAlphabet(textPattern->toPlainText());
     if (!alphabetIsOk) {
         showHideMessage(true, PatternAlphabetDoNotMatch);
-    }
-    else {
+    } else {
         showHideMessage(false, PatternAlphabetDoNotMatch);
     }
 
@@ -793,8 +789,7 @@ void FindPatternMsaWidget::checkState()
             TextUtils::highlightBackground(textPattern);
             showHideMessage(true, PatternIsTooLong);
             return;
-        }
-        else {
+        } else {
             TextUtils::doNotHighlightBackground(textPattern);
             showHideMessage(false, PatternIsTooLong);
         }
@@ -814,8 +809,7 @@ void FindPatternMsaWidget::enableDisableMatchSpin()
 {
     if (textPattern->toPlainText().isEmpty() || isAmino) {
         spinMatch->setEnabled(false);
-    }
-    else {
+    } else {
         spinMatch->setEnabled(true);
     }
 }
@@ -906,8 +900,9 @@ void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &pattern
     // Creating and registering the task
     settings.removeOverlaps = removeOverlapsBox->isChecked();
     settings.findSettings.maxResult2Find = boxMaxResult->value();
+    settings.matchValue = spinMatch->value();
 
-    SAFE_POINT(searchTask == NULL, "Search task is not NULL", );
+    SAFE_POINT(searchTask == nullptr, "Search task is not nullptr", );
     nextPushButton->setDisabled(true);
     prevPushButton->setDisabled(true);
 
@@ -919,7 +914,7 @@ void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &pattern
 
 void FindPatternMsaWidget::sl_findPatternTaskStateChanged() {
     FindPatternMsaTask *findTask = static_cast<FindPatternMsaTask*>(sender());
-    CHECK(NULL != findTask, );
+    CHECK(nullptr != findTask, );
     if (findTask != searchTask){
         return;
     }
@@ -939,7 +934,7 @@ void FindPatternMsaWidget::sl_findPatternTaskStateChanged() {
             correctSearchInCombo();
             showCurrentResult();
         }
-        searchTask = NULL;
+        searchTask = nullptr;
     }
 }
 
@@ -992,16 +987,14 @@ void FindPatternMsaWidget::updatePatternText(int previousAlgorithm) {
     // Save a previous state.
     if (FindAlgorithmPatternSettings_RegExp == previousAlgorithm) {
         patternRegExp = textPattern->toPlainText();
-    }
-    else {
+    } else {
         patternString = textPattern->toPlainText();
     }
 
     // Set a new state.
     if (FindAlgorithmPatternSettings_RegExp == selectedAlgorithm) {
         textPattern->setText(patternRegExp);
-    }
-    else {
+    } else {
         textPattern->setText(patternString);
     }
     setCorrectPatternsString();
@@ -1028,8 +1021,7 @@ void FindPatternMsaWidget::validateCheckBoxSize(QCheckBox* checkBox, int require
         if(' ' == text.at(endPos) || endPos == length - 1) {
             if(endPos-1 <= startPos) {
                 wrappedText = "";
-            }
-            else {
+            } else {
                 wrappedText = text.mid(startPos, endPos - startPos - 1);
             }
             textRect = checkBoxMetrics.boundingRect(wrappedText);
@@ -1133,11 +1125,11 @@ bool FindPatternMsaWidget::isSearchPatternsDifferent(const QList<NamePattern> &n
 }
 
 void FindPatternMsaWidget::stopCurrentSearchTask(){
-    if(searchTask != NULL){
+    if(searchTask != nullptr){
         if(!searchTask->isCanceled() && searchTask->getState() != Task::State_Finished){
             searchTask->cancel();
         }
-        searchTask = NULL;
+        searchTask = nullptr;
     }
     findPatternResults.clear();
     nextPushButton->setDisabled(true);

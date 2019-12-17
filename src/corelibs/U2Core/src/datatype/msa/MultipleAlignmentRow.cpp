@@ -70,7 +70,7 @@ int MultipleAlignmentRowData::getUngappedPosition(int pos) const {
     return MsaRowUtils::getUngappedPosition(gaps, sequence.length(), pos);
 }
 
-U2Region MultipleAlignmentRowData::getGapped(const U2Region& region) const {
+U2Region MultipleAlignmentRowData::getGapped(const U2Region& region) {
     return MsaRowUtils::getGappedRegion(gaps, region);
 }
 
@@ -84,6 +84,10 @@ bool MultipleAlignmentRowData::isTrailingOrLeadingGap(qint64 position) const {
 
 U2Region MultipleAlignmentRowData::getCoreRegion() const {
     return U2Region(getCoreStart(), getCoreLength());
+}
+
+U2Region MultipleAlignmentRowData::getUngappedRegionFromSelection(const U2Region& selection) const {
+    return MsaRowUtils::getUngappedRegionFromSelection(gaps, selection);
 }
 
 MultipleAlignmentRowData::~MultipleAlignmentRowData() {
