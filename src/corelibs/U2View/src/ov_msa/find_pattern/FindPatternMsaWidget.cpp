@@ -448,10 +448,8 @@ void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
     }
 }
 
-void FindPatternMsaWidget::sl_onRegionValueEdited()
-{
+void FindPatternMsaWidget::sl_onRegionValueEdited() {
     regionIsCorrect = true;
-
     // The values are not empty
     if (editStart->text().isEmpty()) {
         TextUtils::highlightBackground(editStart);
@@ -471,15 +469,17 @@ void FindPatternMsaWidget::sl_onRegionValueEdited()
             TextUtils::highlightBackground(editEnd);
             regionIsCorrect = false;
         }
+        if (value2 - value1 < 1) {
+            TextUtils::highlightBackground(editEnd);
+            regionIsCorrect = false;
+        }
     }
 
     if (regionIsCorrect) {
         TextUtils::doNotHighlightBackground(editStart);
         TextUtils::doNotHighlightBackground(editEnd);
     }
-
     boxRegion->setCurrentIndex(boxRegion->findData(RegionSelectionIndex_CustomRegion));
-
     checkState();
     if(regionIsCorrect){
         sl_activateNewSearch();
@@ -603,15 +603,15 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
                     {
                     const QString message = tr("Warning: there is no pattern to search. ");
                     text += tr("<b><font color=%1>%2</font></b>").arg(L10N::errorColorLabelHtmlStr()).arg(message);
-                    const QString msg = tr(" Please input a valid pattern or choose a file with patterns ");
+                    const QString msg = tr(" Please input a valid pattern ");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::errorColorLabelHtmlStr()).arg(msg);
                     break;
                     }
                 case SearchRegionIncorrect:
                     {
-                    const QString message = tr("Warning: there is no pattern to search. ");
+                    const QString message = tr("Warning: search region values is not correct. ");
                     text += tr("<b><font color=%1>%2</font></b>").arg(L10N::errorColorLabelHtmlStr()).arg(message);
-                    const QString msg = tr(" Please input a valid pattern or choose a file with patterns ");
+                    const QString msg = tr(" Please input a valid region to search");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::errorColorLabelHtmlStr()).arg(msg);
                     break;
                     }
@@ -660,7 +660,7 @@ void FindPatternMsaWidget::sl_onSearchPatternChanged()
         // Show a warning if the pattern alphabet doesn't match,
         // but do not block the "Search" button
         bool noValidationErrors = verifyPatternAlphabet();
-        if (noValidationErrors && patterns != previousPatternString) {
+        if (noValidationErrors && patterns != previousPatternString && regionIsCorrect) {
             previousPatternString = patterns;
             sl_activateNewSearch(false);
         }

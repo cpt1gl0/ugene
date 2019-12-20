@@ -122,9 +122,9 @@ qint64 MsaRowUtils::getUngappedPosition(const U2MsaRowGapModel &gaps, qint64 dat
 U2Region MsaRowUtils::getGappedRegion(U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
     U2Region result(ungappedRegion);
     foreach(const U2MsaGap & gap, gaps) { 
-        if (gap.offset + gap.gap <= ungappedRegion.endPos()) { //leading gaps
+        if (gap.offset + gap.gap <= result.endPos()) { //leading gaps
             result.startPos += gap.gap;
-        } else if (gap.offset > ungappedRegion.startPos) { //inner gaps
+        } else if (gap.offset > result.startPos && gap.offset < result.endPos()) { //inner gaps
             result.length += gap.gap;
         } else { //trailing
             break;
