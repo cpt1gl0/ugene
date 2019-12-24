@@ -720,7 +720,7 @@ void FindPatternMsaWidget::setRegionToWholeSequence()
 
 bool FindPatternMsaWidget::verifyPatternAlphabet()
 {
-    bool alphabetIsOk = checkAlphabet(textPattern->toPlainText());
+    bool alphabetIsOk = checkAlphabet(textPattern->toPlainText().remove("\n"));
     if (!alphabetIsOk) {
         showHideMessage(true, PatternAlphabetDoNotMatch);
     } else {

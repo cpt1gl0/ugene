@@ -100,7 +100,7 @@ void FindPatternMsaTask::getResultFromTask() {
             resultRegions.append(settings.msaObj->getMultipleAlignment()->getRow(currentSequenceIndex).data()->getGapped(data->getRegions().first()));
             totalResultsCounter++;
         }
-        if (settings.findSettings.patternSettings == FindAlgorithmPatternSettings_RegExp) { //Other algos always return sorted results
+        if (settings.findSettings.patternSettings == FindAlgorithmPatternSettings_RegExp || settings.patterns.size() > 1) { //Other algos always return sorted results
             qSort(resultRegions.begin(), resultRegions.end());
         }
         resultsBySeqIndex.insert(currentSequenceIndex, resultRegions);
