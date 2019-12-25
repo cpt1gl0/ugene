@@ -84,13 +84,13 @@ private:
         void goEnd();
         void goNextResult();
         void goPrevResult();
-    
+
     private:
         QMap<int, QList<U2Region> > results;
 
         int totalResultsCounter;
         int globalPos; //1-based position
-        
+
         QMap<int, QList<U2Region> >::const_iterator rowsIt;
         QList<U2Region>::const_iterator regionsIt;
     };
@@ -174,7 +174,7 @@ private:
     QWidget *useMaxResultLenContainer;
     QCheckBox* boxUseMaxResultLen;
     QSpinBox* boxMaxResultLen;
-        
+
     static const int DEFAULT_RESULTS_NUM_LIMIT;
     static const int DEFAULT_REGEXP_RESULT_LENGTH_LIMIT;
 

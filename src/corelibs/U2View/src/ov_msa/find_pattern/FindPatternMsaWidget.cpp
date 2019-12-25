@@ -166,7 +166,7 @@ FindPatternMsaWidget::FindPatternMsaWidget(MSAEditor* _msaEditor) :
     savableWidget.setRegionWidgetIds(QStringList() << editStart->objectName()
         << editEnd->objectName());
     progressLabel->setMovie(progressMovie);
-    
+
     setContentsMargins(0, 0, 0, 0);
 
     const DNAAlphabet* alphabet = msaEditor->getMaObject()->getAlphabet();
@@ -214,7 +214,7 @@ void FindPatternMsaWidget::showCurrentResultAndStopProgress(const int current, c
 FindPatternMsaWidget::ResultIterator::ResultIterator()
     : results(QMap<int, QList<U2Region> > ()), totalResultsCounter(0), globalPos(0) {}
 
-FindPatternMsaWidget::ResultIterator::ResultIterator(const QMap<int, QList<U2Region> >& results_) 
+FindPatternMsaWidget::ResultIterator::ResultIterator(const QMap<int, QList<U2Region> >& results_)
     : results(results_), totalResultsCounter(0), globalPos(1), rowsIt(results.constBegin()), regionsIt(rowsIt->constBegin())
 {
     foreach(int key, results.keys()) {
@@ -779,7 +779,7 @@ void FindPatternMsaWidget::checkState()
         showHideMessage(true, SearchRegionIncorrect);
         return;
     }
-    
+
     // Show warning if the length of the pattern is greater than the search region length
     // Not for RegExp algorithm
     if (FindAlgorithmPatternSettings_RegExp != selectedAlgorithm) {
@@ -793,7 +793,7 @@ void FindPatternMsaWidget::checkState()
             GUIUtils::setWidgetWarning(textPattern, false);
             showHideMessage(false, PatternIsTooLong);
         }
-    }    
+    }
 
     showHideMessage(false, AnnotationNotValidFastaParsedName);
     showHideMessage(false, AnnotationNotValidName);
