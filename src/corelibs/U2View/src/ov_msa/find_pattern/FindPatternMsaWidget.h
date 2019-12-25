@@ -111,9 +111,6 @@ private:
     QList<NamePattern> updateNamePatterns();
     void showCurrentResultAndStopProgress(const int current, const int total);
     void startProgressAnimation();
-    inline bool msaSelectionEmptyOrNull() const {
-        return msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty() || msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty();
-    }
 
     /**
      * Enables or disables the Search button depending on

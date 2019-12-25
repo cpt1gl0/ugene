@@ -119,10 +119,10 @@ qint64 MsaRowUtils::getUngappedPosition(const U2MsaRowGapModel &gaps, qint64 dat
     return position - gapsLength;
 }
 
-U2Region MsaRowUtils::getGappedRegion(U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
+U2Region MsaRowUtils::getGappedRegion(const U2MsaRowGapModel& gaps, const U2Region& ungappedRegion) {
     U2Region result(ungappedRegion);
     foreach(const U2MsaGap & gap, gaps) { 
-        if (gap.offset + gap.gap <= result.endPos()) { //leading gaps
+        if (gap.offset <= result.startPos) { //leading gaps
             result.startPos += gap.gap;
         } else if (gap.offset > result.startPos && gap.offset < result.endPos()) { //inner gaps
             result.length += gap.gap;
@@ -133,7 +133,7 @@ U2Region MsaRowUtils::getGappedRegion(U2MsaRowGapModel& gaps, const U2Region& un
     return result;
 }
 
-U2Region MsaRowUtils::getUngappedRegionFromSelection(const U2MsaRowGapModel& gaps, const U2Region& selection) {
+U2Region MsaRowUtils::getUngappedRegion(const U2MsaRowGapModel& gaps, const U2Region& selection) {
     int shiftStartPos = 0;
     int decreaseLength = 0;
     foreach(const U2MsaGap & gap, gaps) {

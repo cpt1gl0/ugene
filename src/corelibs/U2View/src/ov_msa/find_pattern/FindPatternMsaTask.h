@@ -43,7 +43,6 @@ struct FindPatternMsaSettings {
 
 class FindPatternMsaTask : public Task {
 public:
-    FindPatternMsaTask();
     FindPatternMsaTask(const FindPatternMsaSettings& settings);
 
     void prepare() override;

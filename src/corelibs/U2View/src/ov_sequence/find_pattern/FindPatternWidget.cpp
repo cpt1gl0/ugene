@@ -539,28 +539,28 @@ void FindPatternWidget::sl_onRegionValueEdited()
 
     // The values are not empty
     if (editStart->text().isEmpty()) {
-        TextUtils::highlightBackground(editStart);
+        GUIUtils::setWidgetWarning(editStart, true);
         regionIsCorrect = false;
     } else if (editEnd->text().isEmpty()) {
-        TextUtils::highlightBackground(editEnd);
+        GUIUtils::setWidgetWarning(editEnd, true);
         regionIsCorrect = false;
     } else {
         bool ok = false;
         qint64 value1 = editStart->text().toLongLong(&ok);
         if (!ok || (value1 < 1)) {
-            TextUtils::highlightBackground(editStart);
+            GUIUtils::setWidgetWarning(editStart, true);
             regionIsCorrect = false;
         }
         int value2 = editEnd->text().toLongLong(&ok);
         if (!ok || value2 < 1) {
-            TextUtils::highlightBackground(editEnd);
+            GUIUtils::setWidgetWarning(editEnd, true);
             regionIsCorrect = false;
         }
     }
 
     if (regionIsCorrect) {
-        TextUtils::doNotHighlightBackground(editStart);
-        TextUtils::doNotHighlightBackground(editEnd);
+        GUIUtils::setWidgetWarning(editStart, false);
+        GUIUtils::setWidgetWarning(editEnd, false);
     }
 
     boxRegion->setCurrentIndex(boxRegion->findData(RegionSelectionIndex_CustomRegion));
@@ -584,8 +584,8 @@ void FindPatternWidget::sl_onFocusChanged(
 
         // Update region
         setRegionToWholeSequence();
-        TextUtils::doNotHighlightBackground(editStart);
-        TextUtils::doNotHighlightBackground(editEnd);
+        GUIUtils::setWidgetWarning(editStart, false);
+        GUIUtils::setWidgetWarning(editEnd, false);
 
         // Update available annotations table objects, etc.
         updateAnnotationsWidget();
@@ -690,7 +690,7 @@ void FindPatternWidget::showHideMessage( bool show, MessageFlag messageFlag, con
                     const QString message = tr("Warning: input value contains characters that"
                                                " do not match the active alphabet!");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::warningColorLabelHtmlStr()).arg(message);
-                    TextUtils::highlightBackground(textPattern);
+                    GUIUtils::setWidgetWarning(textPattern, true);
                     break;
                     }
                 case PatternsWithBadAlphabetInFile:
@@ -759,7 +759,7 @@ void FindPatternWidget::showHideMessage( bool show, MessageFlag messageFlag, con
                     {
                     const QString message = tr("Warning: invalid regexp. ");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::errorColorLabelHtmlStr()).arg(message);
-                    TextUtils::highlightBackground(textPattern);
+                    GUIUtils::setWidgetWarning(textPattern, true);
                     break;
                     }
                 case SequenceIsTooBig:
@@ -779,7 +779,7 @@ void FindPatternWidget::showHideMessage( bool show, MessageFlag messageFlag, con
     }
     bool hasNoErrors = messageFlags.isEmpty() || (messageFlags.size() == 1 && messageFlags.contains(UseMultiplePatternsTip));
     if (hasNoErrors) {
-        TextUtils::doNotHighlightBackground(textPattern);
+        GUIUtils::setWidgetWarning(textPattern, true);
     }
 
 }
@@ -929,7 +929,7 @@ void FindPatternWidget::showTooLongSequenceError()
     showHideMessage(false, PatternsWithBadAlphabetInFile);
     showHideMessage(false, NoPatternToSearch);
     showHideMessage(false, SearchRegionIncorrect);
-    TextUtils::doNotHighlightBackground(textPattern);
+    GUIUtils::setWidgetWarning(textPattern, false);
 }
 
 void FindPatternWidget::checkState()
@@ -959,7 +959,7 @@ void FindPatternWidget::checkState()
     if (textPattern->toPlainText().isEmpty()
         && !loadFromFileGroupBox->isChecked()) {
         showHideMessage(false, PatternAlphabetDoNotMatch);
-        TextUtils::doNotHighlightBackground(textPattern);
+        GUIUtils::setWidgetWarning(textPattern, false);
         return;
     }
 
@@ -975,16 +975,16 @@ void FindPatternWidget::checkState()
             bool regionOk = checkPatternRegion(textPattern->toPlainText());
 
             if (!regionOk) {
-                TextUtils::highlightBackground(textPattern);
+                GUIUtils::setWidgetWarning(textPattern, true);
                 showHideMessage(true, PatternIsTooLong);
                 return;
             } else {
-                TextUtils::doNotHighlightBackground(textPattern);
+                GUIUtils::setWidgetWarning(textPattern, false);
                 showHideMessage(false, PatternIsTooLong);
             }
         }
     } else {
-        TextUtils::doNotHighlightBackground(textPattern);
+        GUIUtils::setWidgetWarning(textPattern, false);
         showHideMessage(false, PatternAlphabetDoNotMatch);
     }
 

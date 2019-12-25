@@ -130,8 +130,8 @@
 #include <U2View/AssemblySettingsWidget.h>
 #include <U2View/ColorSchemaSettingsController.h>
 #include <U2View/DnaAssemblyUtils.h>
-#include <U2View/FindPatternWidgetFactory.h>
 #include <U2View/FindPatternMsaWidgetFactory.h>
+#include <U2View/FindPatternWidgetFactory.h>
 #include <U2View/McaGeneralTabFactory.h>
 #include <U2View/MaExportConsensusTabFactory.h>
 #include <U2View/MSAGeneralTabFactory.h>

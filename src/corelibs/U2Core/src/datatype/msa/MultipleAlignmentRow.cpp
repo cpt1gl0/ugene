@@ -70,6 +70,10 @@ int MultipleAlignmentRowData::getUngappedPosition(int pos) const {
     return MsaRowUtils::getUngappedPosition(gaps, sequence.length(), pos);
 }
 
+DNASequence MultipleAlignmentRowData::getUngappedSequence() const {
+    return sequence;
+}
+
 U2Region MultipleAlignmentRowData::getGapped(const U2Region& region) {
     return MsaRowUtils::getGappedRegion(gaps, region);
 }
@@ -86,8 +90,13 @@ U2Region MultipleAlignmentRowData::getCoreRegion() const {
     return U2Region(getCoreStart(), getCoreLength());
 }
 
-U2Region MultipleAlignmentRowData::getUngappedRegionFromSelection(const U2Region& selection) const {
-    return MsaRowUtils::getUngappedRegionFromSelection(gaps, selection);
+U2Region MultipleAlignmentRowData::getUngappedRegion(const U2Region& selection) const {
+    U2Region noTrailingGapsRegion(selection);
+    
+    if (noTrailingGapsRegion.endPos() > getRowLengthWithoutTrailing()) {
+        noTrailingGapsRegion.length = getRowLengthWithoutTrailing() - noTrailingGapsRegion.startPos;
+    }
+    return MsaRowUtils::getUngappedRegion(gaps, noTrailingGapsRegion);
 }
 
 MultipleAlignmentRowData::~MultipleAlignmentRowData() {

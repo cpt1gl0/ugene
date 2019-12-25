@@ -33,19 +33,12 @@ FindPatternMsaSettings::FindPatternMsaSettings()
 
 }
 
-FindPatternMsaTask::FindPatternMsaTask() : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
-    currentSequenceIndex(0),
-    searchInSingleSequenceTask(nullptr),
-    totalResultsCounter(0) {
-
-}
-
 FindPatternMsaTask::FindPatternMsaTask(const FindPatternMsaSettings& _settings)
     : Task(tr("Searching a pattern in multiple alignment task"), TaskFlags_NR_FOSE_COSC),
     settings(_settings),
     currentSequenceIndex(0),
-    totalResultsCounter(0),
-    searchInSingleSequenceTask(nullptr) {
+    searchInSingleSequenceTask(nullptr),
+    totalResultsCounter(0) {
 }
 
 void FindPatternMsaTask::prepare() {
@@ -62,17 +55,19 @@ void FindPatternMsaTask::createSearchTaskForCurrentSequence() {
     algoSettings.patternSettings = settings.findSettings.patternSettings;
     algoSettings.sequenceAlphabet = settings.msaObj->getAlphabet();
     algoSettings.searchIsCircular = false;
-    QByteArray seq = settings.msaObj->getRow(currentSequenceIndex)->getUngeppedDnaSequence().constSequence();
+    QByteArray seq = settings.msaObj->getRow(currentSequenceIndex)->getUngappedSequence().constSequence();
     FindAlgorithmTaskSettings currentSettings = algoSettings;
     currentSettings.sequence = seq;
-    currentSettings.searchRegion = settings.msaObj->getRow(currentSequenceIndex)->getUngappedRegionFromSelection(settings.findSettings.searchRegion);
+    currentSettings.searchRegion = settings.msaObj->getRow(currentSequenceIndex)->getUngappedRegion(settings.findSettings.searchRegion);
     searchInSingleSequenceTask = new FindPatternListTask(currentSettings, settings.patterns, settings.removeOverlaps, settings.matchValue);
-    //TODO: add condition to skip task creation for empty regions
     return;
 }
 
 QList<Task*> FindPatternMsaTask::onSubTaskFinished(Task* subTask) {
     QList<Task*> result;
+    if (subTask->isCanceled()) {
+        return result;
+    }
     if (subTask->hasError() && subTask == searchInSingleSequenceTask) {
         stateInfo.setError(subTask->getError());
         return result;

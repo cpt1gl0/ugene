@@ -45,6 +45,7 @@
 #include <U2Core/U2DbiUtils.h>
 #include <U2Core/U2OpStatusUtils.h>
 #include <U2Core/U2SafePoints.h>
+#include <U2Core/TaskWatchdog.h>
 
 #include <U2Formats/FastaFormat.h>
 
@@ -392,12 +393,10 @@ void FindPatternMsaWidget::connectSlots()
     connect(editEnd, SIGNAL(textChanged(QString)), SLOT(sl_onRegionValueEdited()));
     connect(boxMaxResult, SIGNAL(valueChanged(int)), SLOT(sl_onMaxResultChanged(int)));
     connect(removeOverlapsBox, SIGNAL(stateChanged(int)), SLOT(sl_activateNewSearch()));
-  
-    // A sequence has been modified (a subsequence added, removed, etc.)
-    /*
-    connect(annotatedDnaView->getSequenceInFocus()->getSequenceObject(), SIGNAL(si_sequenceChanged()),
-        this, SLOT(sl_onSequenceModified()));
-    */
+    connect(msaEditor->getMaObject(), SIGNAL(si_alignmentChanged(const MultipleAlignment &, const MaModificationInfo &)),
+        this, SLOT(sl_onMsaModified()));
+    connect(msaEditor->getMaObject(), SIGNAL(si_alphabetChanged(const MaModificationInfo &, const DNAAlphabet *)),
+        this, SLOT(sl_onMsaModified()));
     connect(prevPushButton, SIGNAL(clicked()), SLOT(sl_prevButtonClicked()));
     connect(nextPushButton, SIGNAL(clicked()), SLOT(sl_nextButtonClicked()));
     connect(spinMatch, SIGNAL(valueChanged(int)), SLOT(sl_activateNewSearch()));
@@ -418,7 +417,7 @@ void FindPatternMsaWidget::sl_onAlgorithmChanged(int index)
 
 void FindPatternMsaWidget::sl_onRegionOptionChanged(int index)
 {
-    if (!msaSelectionEmptyOrNull()){
+    if (!msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty()){
         disconnect(msaEditor->getUI()->getSequenceArea(), SIGNAL(si_selectionChanged(const MaEditorSelection &, const MaEditorSelection &)),
             this, SLOT(sl_onSelectedRegionChanged(const MaEditorSelection &, const MaEditorSelection &)));
     }
@@ -452,32 +451,32 @@ void FindPatternMsaWidget::sl_onRegionValueEdited() {
     regionIsCorrect = true;
     // The values are not empty
     if (editStart->text().isEmpty()) {
-        TextUtils::highlightBackground(editStart);
+        GUIUtils::setWidgetWarning(editStart, true);
         regionIsCorrect = false;
     } else if (editEnd->text().isEmpty()) {
-        TextUtils::highlightBackground(editEnd);
+        GUIUtils::setWidgetWarning(editEnd, true);
         regionIsCorrect = false;
     } else {
         bool ok = false;
         qint64 value1 = editStart->text().toLongLong(&ok);
         if (!ok || (value1 < 1)) {
-            TextUtils::highlightBackground(editStart);
+            GUIUtils::setWidgetWarning(editStart, true);
             regionIsCorrect = false;
         }
         int value2 = editEnd->text().toLongLong(&ok);
         if (!ok || value2 < 1) {
-            TextUtils::highlightBackground(editEnd);
+            GUIUtils::setWidgetWarning(editEnd, true);
             regionIsCorrect = false;
         }
         if (value2 - value1 < 1) {
-            TextUtils::highlightBackground(editEnd);
+            GUIUtils::setWidgetWarning(editEnd, true);
             regionIsCorrect = false;
         }
     }
 
     if (regionIsCorrect) {
-        TextUtils::doNotHighlightBackground(editStart);
-        TextUtils::doNotHighlightBackground(editEnd);
+        GUIUtils::setWidgetWarning(editStart, false);
+        GUIUtils::setWidgetWarning(editEnd, false);
     }
     boxRegion->setCurrentIndex(boxRegion->findData(RegionSelectionIndex_CustomRegion));
     checkState();
@@ -550,7 +549,7 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
                     const QString message = tr("Warning: input value contains characters that"
                                                " do not match the active alphabet!");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::warningColorLabelHtmlStr()).arg(message);
-                    TextUtils::highlightBackground(textPattern);
+                    GUIUtils::setWidgetWarning(textPattern, true);
                     break;
                     }
                 case PatternsWithBadAlphabetInFile:
@@ -619,7 +618,7 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
                     {
                     const QString message = tr("Warning: invalid regexp. ");
                     text += tr("<b><font color=%1>%2</font><br></br></b>").arg(L10N::errorColorLabelHtmlStr()).arg(message);
-                    TextUtils::highlightBackground(textPattern);
+                    GUIUtils::setWidgetWarning(textPattern, true);
                     break;
                     }
                 case SequenceIsTooBig:
@@ -639,7 +638,7 @@ void FindPatternMsaWidget::showHideMessage( bool show, MessageFlag messageFlag, 
     }
     bool hasNoErrors = messageFlags.isEmpty() || (messageFlags.size() == 1 && messageFlags.contains(UseMultiplePatternsTip));
     if (hasNoErrors) {
-        TextUtils::doNotHighlightBackground(textPattern);
+        GUIUtils::setWidgetWarning(textPattern, false);
     }
 
 }
@@ -748,6 +747,7 @@ void FindPatternMsaWidget::sl_onMsaModified()
     setRegionToWholeSequence();
     checkState();
     verifyPatternAlphabet();
+    sl_activateNewSearch(true);
 }
 
 void FindPatternMsaWidget::showTooLongSequenceError()
@@ -761,7 +761,7 @@ void FindPatternMsaWidget::showTooLongSequenceError()
     showHideMessage(false, PatternsWithBadAlphabetInFile);
     showHideMessage(false, NoPatternToSearch);
     showHideMessage(false, SearchRegionIncorrect);
-    TextUtils::doNotHighlightBackground(textPattern);
+    GUIUtils::setWidgetWarning(textPattern, false);
 }
 
 void FindPatternMsaWidget::checkState()
@@ -770,7 +770,7 @@ void FindPatternMsaWidget::checkState()
     //and pattern is not loaded from a file
     if (textPattern->toPlainText().isEmpty()) {
         showHideMessage(false, PatternAlphabetDoNotMatch);
-        TextUtils::doNotHighlightBackground(textPattern);
+        GUIUtils::setWidgetWarning(textPattern, false);
         return;
     }
 
@@ -786,11 +786,11 @@ void FindPatternMsaWidget::checkState()
         bool regionOk = checkPatternRegion(textPattern->toPlainText());
 
         if (!regionOk) {
-            TextUtils::highlightBackground(textPattern);
+            GUIUtils::setWidgetWarning(textPattern, true);
             showHideMessage(true, PatternIsTooLong);
             return;
         } else {
-            TextUtils::doNotHighlightBackground(textPattern);
+            GUIUtils::setWidgetWarning(textPattern, false);
             showHideMessage(false, PatternIsTooLong);
         }
     }    
@@ -909,6 +909,7 @@ void FindPatternMsaWidget::initFindPatternTask(const QList<NamePattern> &pattern
     searchTask = new FindPatternMsaTask(settings);
     connect(searchTask, SIGNAL(si_stateChanged()), SLOT(sl_findPatternTaskStateChanged()));
     startProgressAnimation();
+    TaskWatchdog::trackResourceExistence(msaEditor->getMaObject(), searchTask);
     AppContext::getTaskScheduler()->registerTopLevelTask(searchTask);
 }
 
@@ -969,7 +970,7 @@ bool FindPatternMsaWidget::checkPatternRegion( const QString& pattern ){
 }
 
 void FindPatternMsaWidget::sl_onSelectedRegionChanged(const MaEditorSelection& current, const MaEditorSelection& prev) {
-    if(!msaSelectionEmptyOrNull()){
+    if(!msaEditor->getUI()->getSequenceArea()->getSelection().isEmpty()){
         QRect selection = msaEditor->getCurrentSelection();
         U2Region firstReg = U2Region(selection.topLeft().rx(), selection.topRight().rx() - selection.topLeft().rx());
         editStart->setText(QString::number(firstReg.startPos + 1));
