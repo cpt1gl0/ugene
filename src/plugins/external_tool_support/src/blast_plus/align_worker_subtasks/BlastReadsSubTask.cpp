@@ -328,14 +328,14 @@ void BlastAndSwReadTask::createAlignment(const U2Region& refRegion) {
     MultipleSequenceAlignment alignment("msa", refObject->getAlphabet());
     alignment->addRow(refObject->getSequenceName(), referenceData);
     CHECK_OP(stateInfo, );
-    QByteArray readData = readObject->getWholeSequenceData(stateInfo);
+    DNASequence dnaSequence = readObject->getWholeSequence(stateInfo);
     CHECK_OP(stateInfo, );
 
     if (readShift != 0) {
         alignment->addRow(readObject->getSequenceName(),
-                         complement ? DNASequenceUtils::reverseComplement(readData) : readData, U2MsaRowGapModel() << U2MsaGap(0, readShift), stateInfo);
+                         complement ? DNASequenceUtils::reverseComplement(dnaSequence) : dnaSequence, U2MsaRowGapModel() << U2MsaGap(0, readShift), stateInfo);
     } else {
-        alignment->addRow(readObject->getSequenceName(), complement ? DNASequenceUtils::reverseComplement(readData) : readData);
+        alignment->addRow(readObject->getSequenceName(), complement ? DNASequenceUtils::reverseComplement(dnaSequence) : dnaSequence, U2MsaRowGapModel(), stateInfo);
     }
 
     CHECK_OP(stateInfo, );
