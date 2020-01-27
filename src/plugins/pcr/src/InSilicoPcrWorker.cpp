@@ -357,6 +357,8 @@ Task * InSilicoPcrWorker::createTask(const Message &message, U2OpStatus &os) {
         tasks << pcrTask;
     }
     sequences << seqId;
+    CHECK(!tasks.isEmpty(), nullptr);
+
     return new MultiTask(tr("Multiple In Silico PCR"), tasks);
 }
 
